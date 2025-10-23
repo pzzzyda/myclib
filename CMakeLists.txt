@@ -1,0 +1,30 @@
+cmake_minimum_required(VERSION 3.10)
+project(myclib VERSION 0.1.0 LANGUAGES C)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+option(BUILD_TESTS "Build tests" ON)
+
+add_library(myc STATIC
+        src/aligned_malloc.c
+        src/hash.c
+)
+
+target_include_directories(myc PUBLIC include)
+
+if (MSVC)
+    target_compile_options(myc PRIVATE /W4 /WX)
+else ()
+    target_compile_options(myc PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif ()
+
+if (BUILD_TESTS)
+    enable_testing()
+
+    function(mc_add_test test_name test_source)
+        add_executable(${test_name} ${test_source})
+        target_link_libraries(${test_name} PRIVATE myc)
+        add_test(NAME ${test_name} COMMAND ${test_name})
+    endfunction()
+endif ()

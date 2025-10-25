@@ -1,6 +1,8 @@
 #ifndef MYCLIB_MACROS_H
 #define MYCLIB_MACROS_H
 
+#define MC_STATIC static
+
 #if defined(__x86_64__) || defined(__aarch64__) || defined(__ppc64__)
 #define MC_ARCH_64 1
 #elif || defined(__i386__) || defined(__arm__) || defined(__ppc__)

@@ -1,0 +1,28 @@
+AccessModifierOffset: -4
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseExpressionOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortCompoundRequirementOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: None
+AllowShortLoopsOnASingleLine: false
+BasedOnStyle: LLVM
+BraceWrapping:
+    AfterCaseLabel: false
+    AfterControlStatement: Never
+    AfterEnum: false
+    AfterFunction: true
+    AfterStruct: false
+    AfterUnion: false
+    AfterExternBlock: false
+    BeforeElse: false
+    BeforeWhile: false
+    IndentBraces: false
+    SplitEmptyFunction: true
+BreakBeforeBraces: Custom
+ColumnLimit: 80
+IndentWidth: 4
+SortIncludes: Never
+UseTab: Never

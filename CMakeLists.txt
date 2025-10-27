@@ -6,17 +6,18 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 option(BUILD_TESTS "Build tests" ON)
 
-add_library(myc STATIC
+add_library(${PROJECT_NAME} STATIC
         src/aligned_malloc.c
         src/hash.c
+        src/type.c
 )
 
-target_include_directories(myc PUBLIC include)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 if (MSVC)
-    target_compile_options(myc PRIVATE /W4 /WX)
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 else ()
-    target_compile_options(myc PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif ()
 
 if (BUILD_TESTS)

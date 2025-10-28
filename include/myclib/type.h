@@ -300,14 +300,12 @@ struct mc_type {
     {                                                                          \
         assert(self);                                                          \
         assert(source);                                                        \
-        static_assert(sizeof(type) > 0, #type_name " must be complete!");      \
         memcpy(self, source, sizeof(type));                                    \
     }                                                                          \
     static void type_name##_copy(void *self, const void *source)               \
     {                                                                          \
         assert(self);                                                          \
         assert(source);                                                        \
-        static_assert(sizeof(type) > 0, #type_name " must be complete!");      \
         memcpy(self, source, sizeof(type));                                    \
     }                                                                          \
     MC_DEFINE_TYPE(type_name, type, NULL, type_name##_move, type_name##_copy,  \

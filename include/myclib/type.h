@@ -157,14 +157,14 @@ typedef size_t (*mc_hash_func)(const void *self);
 
 struct mc_type {
     const char *name;
-    size_t alignment;            /* alignof(T) */
-    size_t size;                 /* sizeof(T) */
-    mc_destroy_func destroy;     /* Nullable */
-    mc_move_construct_func move; /* Non-Nullable */
-    mc_copy_construct_func copy; /* Nullable */
-    mc_compare_func compare;     /* Nullable */
-    mc_equal_func equal;         /* Nullable */
-    mc_hash_func hash;           /* Nullable */
+    size_t alignment;                 /* alignof(T) */
+    size_t size;                      /* sizeof(T) */
+    mc_destroy_func destroy;          /* Nullable */
+    mc_move_construct_func move_ctor; /* Non-Nullable */
+    mc_copy_construct_func copy_ctor; /* Nullable */
+    mc_compare_func compare;          /* Nullable */
+    mc_equal_func equal;              /* Nullable */
+    mc_hash_func hash;                /* Nullable */
 };
 
 /**
@@ -245,8 +245,8 @@ struct mc_type {
             .alignment = alignof(type),                                        \
             .size = sizeof(type),                                              \
             .destroy = destroy_func,                                           \
-            .move = move_ctor_func,                                            \
-            .copy = copy_ctor_func,                                            \
+            .move_ctor = move_ctor_func,                                       \
+            .copy_ctor = copy_ctor_func,                                       \
             .compare = compare_func,                                           \
             .equal = equal_func,                                               \
             .hash = hash_func,                                                 \

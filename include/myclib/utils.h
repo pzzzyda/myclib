@@ -1,23 +1,8 @@
-#ifndef MYCLIB_MACROS_H
-#define MYCLIB_MACROS_H
+#ifndef MYCLIB_UTILS_H
+#define MYCLIB_UTILS_H
 
-#define MC_STATIC static
-
-#if defined(__x86_64__) || defined(__aarch64__) || defined(__ppc64__)
-#define MC_ARCH_64 1
-#elif || defined(__i386__) || defined(__arm__) || defined(__ppc__)
-#define MC_ARCH_32 1
-#else
-#error "Unknown architecture!"
-#endif
-
-/**
- * Only works for statically allocated arrays.
- */
-#define MC_ARRAY_LEN(arr) (sizeof(arr) / sizeof((arr)[0]))
-
-#define MC_ARRAY_INDEX(arr, elem_size, index)                                  \
-    ((void *)((char *)(arr) + (elem_size) * (index)))
+#include <stdint.h>
+#include <stddef.h>
 
 #define __MC_JOIN_UNDERSCORE0()
 #define __MC_JOIN_UNDERSCORE1(a) a
@@ -33,5 +18,36 @@
         __MC_JOIN_UNDERSCORE4, __MC_JOIN_UNDERSCORE3, __MC_JOIN_UNDERSCORE2,   \
         __MC_JOIN_UNDERSCORE1, __MC_JOIN_UNDERSCORE0)                          \
     (__VA_ARGS__)
+
+static inline void *mc_ptr_add(void *ptr, size_t offset)
+{
+    return (void *)((uintptr_t)ptr + offset);
+}
+
+static inline void *mc_ptr_sub(void *ptr, size_t offset)
+{
+    return (void *)((uintptr_t)ptr - offset);
+}
+
+static inline ptrdiff_t mc_ptr_diff(void *ptr1, void *ptr2)
+{
+    return (intptr_t)ptr1 - (intptr_t)ptr2;
+}
+
+static inline size_t mc_ptr_diff_abs(void *ptr1, void *ptr2)
+{
+    return ptr1 > ptr2 ? (uintptr_t)ptr1 - (uintptr_t)ptr2
+                       : (uintptr_t)ptr2 - (uintptr_t)ptr1;
+}
+
+static inline size_t mc_max2(size_t a, size_t b)
+{
+    return a > b ? a : b;
+}
+
+static inline size_t mc_min2(size_t a, size_t b)
+{
+    return a < b ? a : b;
+}
 
 #endif

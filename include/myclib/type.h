@@ -321,4 +321,102 @@ MC_DECLARE_TYPE(uint32);
 MC_DECLARE_TYPE(uint64);
 MC_DECLARE_TYPE(str); /* The string literal type. e.g. "hello" */
 
+/**
+ * @brief Get the destroy function for a type.
+ *
+ * This function retrieves the destroy function for the specified type. If the
+ * type does not have a destroy function, it panics.
+ *
+ * @param caller The name of the caller function (for error reporting).
+ * @param type   The type for which to retrieve the destroy function.
+ *
+ * @return The destroy function for the specified type.
+ *
+ * @note This function panics if the type does not have a destroy function.
+ */
+mc_destroy_func mc_type_get_destroy_forced(const char *caller,
+                                           const struct mc_type *type);
+
+/**
+ * @brief Get the move constructor function for a type.
+ *
+ * This function retrieves the move constructor function for the specified type.
+ * If the type does not have a move constructor function, it panics.
+ *
+ * @param caller The name of the caller function (for error reporting).
+ * @param type   The type for which to retrieve the move constructor function.
+ *
+ * @return The move constructor function for the specified type.
+ *
+ * @note This function panics if the type does not have a move constructor
+ *       function.
+ */
+mc_move_construct_func mc_type_get_move_ctor_forced(const char *caller,
+                                                    const struct mc_type *type);
+
+/**
+ * @brief Get the copy constructor function for a type.
+ *
+ * This function retrieves the copy constructor function for the specified type.
+ * If the type does not have a copy constructor function, it panics.
+ *
+ * @param caller The name of the caller function (for error reporting).
+ * @param type   The type for which to retrieve the copy constructor function.
+ *
+ * @return The copy constructor function for the specified type.
+ *
+ * @note This function panics if the type does not have a copy constructor
+ *       function.
+ */
+mc_copy_construct_func mc_type_get_copy_ctor_forced(const char *caller,
+                                                    const struct mc_type *type);
+
+/**
+ * @brief Get the compare function for a type.
+ *
+ * This function retrieves the compare function for the specified type. If the
+ * type does not have a compare function, it panics.
+ *
+ * @param caller The name of the caller function (for error reporting).
+ * @param type   The type for which to retrieve the compare function.
+ *
+ * @return The compare function for the specified type.
+ *
+ * @note This function panics if the type does not have a compare function.
+ */
+mc_compare_func mc_type_get_compare_forced(const char *caller,
+                                           const struct mc_type *type);
+
+/**
+ * @brief Get the equal function for a type.
+ *
+ * This function retrieves the equal function for the specified type. If the
+ * type does not have an equal function, it panics.
+ *
+ * @param caller The name of the caller function (for error reporting).
+ * @param type   The type for which to retrieve the equal function.
+ *
+ * @return The equal function for the specified type.
+ *
+ * @note This function panics if the type does not have an equal function.
+ */
+mc_equal_func mc_type_get_equal_forced(const char *caller,
+                                       const struct mc_type *type);
+
+/**
+ * @brief Get the hash function for a type.
+ *
+ * This function retrieves the hash function for the specified type. If the
+ * type does not have a hash function, it panics.
+ *
+ * @param caller The name of the caller function (for error reporting).
+ * @param type   The type for which to retrieve the hash function.
+ *
+ * @return The hash function for the specified type.
+ *
+ * @note This function panics if the type does not have a hash function.
+ */
+mc_hash_func mc_type_get_hash_forced(const char *caller,
+                                     const struct mc_type *type);
+
 #endif

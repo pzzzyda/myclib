@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include "myclib/type.h"
@@ -77,3 +79,22 @@ MC_DEFINE_INT_TYPE(uint32, uint32_t)
 MC_DEFINE_INT_TYPE(uint64, uint64_t)
 MC_DEFINE_TYPE(str, const char *, NULL, str_move, str_copy, str_compare,
                str_equal, str_hash)
+
+#define MC_TYPE_FORCED_FUNC_GETTER(func_type, field)                           \
+    func_type mc_type_get_##field##_forced(const char *caller,                 \
+                                           const struct mc_type *type)         \
+    {                                                                          \
+        assert(type);                                                          \
+        if (type->field)                                                       \
+            return type->field;                                                \
+        fprintf(stderr, "%s: type %s did not implement %s function\n", caller, \
+                type->name, #func_type);                                       \
+        abort();                                                               \
+    }
+
+MC_TYPE_FORCED_FUNC_GETTER(mc_destroy_func, destroy)
+MC_TYPE_FORCED_FUNC_GETTER(mc_move_construct_func, move_ctor)
+MC_TYPE_FORCED_FUNC_GETTER(mc_copy_construct_func, copy_ctor)
+MC_TYPE_FORCED_FUNC_GETTER(mc_compare_func, compare)
+MC_TYPE_FORCED_FUNC_GETTER(mc_equal_func, equal)
+MC_TYPE_FORCED_FUNC_GETTER(mc_hash_func, hash)

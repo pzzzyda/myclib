@@ -7,6 +7,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 option(BUILD_TESTS "Build tests" ON)
 
 add_library(${PROJECT_NAME} STATIC
+        src/container/array.c
         src/aligned_malloc.c
         src/hash.c
         src/type.c
@@ -25,7 +26,9 @@ if (BUILD_TESTS)
 
     function(mc_add_test test_name test_source)
         add_executable(${test_name} ${test_source})
-        target_link_libraries(${test_name} PRIVATE myc)
+        target_link_libraries(${test_name} PRIVATE ${PROJECT_NAME})
         add_test(NAME ${test_name} COMMAND ${test_name})
     endfunction()
+
+    mc_add_test(array_test tests/array_test.c)
 endif ()

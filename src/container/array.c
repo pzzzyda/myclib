@@ -20,8 +20,7 @@ void mc_array_init(struct mc_array *self, const struct mc_type *elem_type)
     assert(elem_type);
     assert(elem_type->move_ctor);
     assert(elem_type->size > 0);
-    assert(elem_type->alignment > 0);
-    assert((elem_type->alignment & (elem_type->alignment - 1)) == 0);
+    assert(mc_is_pow_of_two(elem_type->alignment));
     self->data = NULL;
     self->len = 0;
     self->capacity = 0;

@@ -12,10 +12,10 @@
  * Memory is managed automatically with growth strategy.
  */
 struct mc_array {
+    const struct mc_type *elem_type;
     void *data;
     size_t len;
     size_t capacity;
-    const struct mc_type *elem_type;
 };
 
 /**

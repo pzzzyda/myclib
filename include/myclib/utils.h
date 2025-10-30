@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 #define __MC_JOIN_UNDERSCORE0()
 #define __MC_JOIN_UNDERSCORE1(a) a
@@ -48,6 +49,11 @@ static inline size_t mc_max2(size_t a, size_t b)
 static inline size_t mc_min2(size_t a, size_t b)
 {
     return a < b ? a : b;
+}
+
+static inline bool mc_is_pow_of_two(size_t n)
+{
+    return n != 0 && (n & (n - 1)) == 0;
 }
 
 #endif

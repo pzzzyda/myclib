@@ -25,35 +25,42 @@ static inline void *mc_ptr_add(void *ptr, size_t offset)
     return (void *)((uintptr_t)ptr + offset);
 }
 
-static inline void *mc_ptr_sub(void *ptr, size_t offset)
-{
-    return (void *)((uintptr_t)ptr - offset);
-}
-
-static inline ptrdiff_t mc_ptr_diff(void *ptr1, void *ptr2)
-{
-    return (intptr_t)ptr1 - (intptr_t)ptr2;
-}
-
-static inline size_t mc_ptr_diff_abs(void *ptr1, void *ptr2)
-{
-    return ptr1 > ptr2 ? (uintptr_t)ptr1 - (uintptr_t)ptr2
-                       : (uintptr_t)ptr2 - (uintptr_t)ptr1;
-}
-
 static inline size_t mc_max2(size_t a, size_t b)
 {
     return a > b ? a : b;
 }
 
-static inline size_t mc_min2(size_t a, size_t b)
-{
-    return a < b ? a : b;
-}
-
 static inline bool mc_is_pow_of_two(size_t n)
 {
     return n != 0 && (n & (n - 1)) == 0;
+}
+
+static inline size_t mc_next_pow_of_two(size_t n)
+{
+    if (n == 0)
+        return 1;
+    if (n == 1)
+        return 1;
+
+#if SIZE_MAX == UINT64_MAX
+    if (n > (size_t)1 << 63)
+        return SIZE_MAX;
+#else
+    if (n > (size_t)1 << 31)
+        return SIZE_MAX;
+#endif
+
+    n -= 1;
+
+    n |= n >> 1;
+    n |= n >> 2;
+    n |= n >> 4;
+    n |= n >> 8;
+    n |= n >> 16;
+#if SIZE_MAX == UINT64_MAX
+    n |= n >> 32;
+#endif
+    return n + 1;
 }
 
 #endif

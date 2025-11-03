@@ -8,6 +8,7 @@ option(BUILD_TESTS "Build tests" ON)
 
 add_library(${PROJECT_NAME} STATIC
         src/container/array.c
+        src/container/map.c
         src/aligned_malloc.c
         src/hash.c
         src/type.c

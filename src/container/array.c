@@ -183,7 +183,7 @@ bool mc_array_pop(struct mc_array *array, void *out_elem)
     if (array->len == 0)
         return false;
 
-    mc_array_extract_one(array, array->len--, out_elem);
+    mc_array_extract_one(array, --array->len, out_elem);
 
     return true;
 }

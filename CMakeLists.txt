@@ -7,10 +7,10 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 option(BUILD_TESTS "Build tests" ON)
 
 add_library(${PROJECT_NAME} STATIC
-        src/container/array.c
-        src/container/map.c
         src/aligned_malloc.c
+        src/array.c
         src/hash.c
+        src/map.c
         src/type.c
 )
 

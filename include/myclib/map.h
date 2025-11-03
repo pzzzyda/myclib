@@ -1,5 +1,5 @@
-#ifndef MYCLIB_CONTAINER_MAP_H
-#define MYCLIB_CONTAINER_MAP_H
+#ifndef MYCLIB_MAP_H
+#define MYCLIB_MAP_H
 
 #include "myclib/type.h"
 

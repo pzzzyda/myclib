@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "myclib/container/array.h"
+#include "myclib/array.h"
 #include "myclib/aligned_malloc.h"
 #include "myclib/utils.h"
 

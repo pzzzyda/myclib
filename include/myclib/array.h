@@ -1,5 +1,5 @@
-#ifndef MYCLIB_CONTAINER_ARRAY_H
-#define MYCLIB_CONTAINER_ARRAY_H
+#ifndef MYCLIB_ARRAY_H
+#define MYCLIB_ARRAY_H
 
 #include "myclib/type.h"
 

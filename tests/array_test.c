@@ -10,51 +10,51 @@ struct test_object {
     char *name;
 };
 
-static void test_object_destroy(void *self)
+static void test_object_destroy(void *obj)
 {
-    assert(self);
-    struct test_object *obj = (struct test_object *)self;
-    if (obj->name) {
-        free(obj->name);
-        obj->name = NULL;
+    assert(obj);
+    struct test_object *o = (struct test_object *)obj;
+    if (o->name) {
+        free(o->name);
+        o->name = NULL;
     }
 }
 
-static void test_object_move(void *self, void *source)
+static void test_object_move(void *dst, void *src)
 {
-    assert(self);
-    assert(source);
-    struct test_object *dest = (struct test_object *)self;
-    struct test_object *src = (struct test_object *)source;
+    assert(dst);
+    assert(src);
+    struct test_object *d = (struct test_object *)dst;
+    struct test_object *s = (struct test_object *)src;
 
-    dest->id = src->id;
-    dest->name = src->name;
+    d->id = s->id;
+    d->name = s->name;
 
-    src->id = 0;
-    src->name = NULL;
+    s->id = 0;
+    s->name = NULL;
 }
 
-static void test_object_copy(void *self, const void *source)
+static void test_object_copy(void *dst, const void *src)
 {
-    assert(self);
-    assert(source);
-    struct test_object *dest = (struct test_object *)self;
-    const struct test_object *src = (const struct test_object *)source;
+    assert(dst);
+    assert(src);
+    struct test_object *d = (struct test_object *)dst;
+    const struct test_object *s = (const struct test_object *)src;
 
-    dest->id = src->id;
-    if (src->name) {
-        dest->name = strdup(src->name);
+    d->id = s->id;
+    if (s->name) {
+        d->name = strdup(s->name);
     } else {
-        dest->name = NULL;
+        d->name = NULL;
     }
 }
 
-static int test_object_compare(const void *self, const void *other)
+static int test_object_compare(const void *obj1, const void *obj2)
 {
-    assert(self);
-    assert(other);
-    const struct test_object *a = (const struct test_object *)self;
-    const struct test_object *b = (const struct test_object *)other;
+    assert(obj1);
+    assert(obj2);
+    const struct test_object *a = (const struct test_object *)obj1;
+    const struct test_object *b = (const struct test_object *)obj2;
 
     if (a->id != b->id) {
         return a->id - b->id;
@@ -73,12 +73,12 @@ static int test_object_compare(const void *self, const void *other)
     return strcmp(a->name, b->name);
 }
 
-static bool test_object_equal(const void *self, const void *other)
+static bool test_object_equal(const void *obj1, const void *obj2)
 {
-    assert(self);
-    assert(other);
-    const struct test_object *a = (const struct test_object *)self;
-    const struct test_object *b = (const struct test_object *)other;
+    assert(obj1);
+    assert(obj2);
+    const struct test_object *a = (const struct test_object *)obj1;
+    const struct test_object *b = (const struct test_object *)obj2;
 
     if (a->id != b->id) {
         return false;
@@ -94,14 +94,14 @@ static bool test_object_equal(const void *self, const void *other)
     return strcmp(a->name, b->name) == 0;
 }
 
-static size_t test_object_hash(const void *self)
+static size_t test_object_hash(const void *obj)
 {
-    assert(self);
-    const struct test_object *obj = (const struct test_object *)self;
-    size_t hash = (size_t)obj->id;
+    assert(obj);
+    const struct test_object *o = (const struct test_object *)obj;
+    size_t hash = (size_t)o->id;
 
-    if (obj->name) {
-        const char *s = obj->name;
+    if (o->name) {
+        const char *s = o->name;
         while (*s) {
             hash = (hash * 31) + (unsigned char)*s;
             s++;
@@ -113,7 +113,7 @@ static size_t test_object_hash(const void *self)
 
 MC_DEFINE_TYPE(test_object, struct test_object, test_object_destroy,
                test_object_move, test_object_copy, test_object_compare,
-               test_object_equal, test_object_hash);
+               test_object_equal, test_object_hash)
 
 static struct test_object create_test_object(int id, const char *name)
 {

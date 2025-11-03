@@ -6,66 +6,52 @@
 #include "myclib/hash.h"
 
 #define MC_DEFINE_INT_TYPE(type_name, type)                                    \
-    static int type_name##_compare(const void *self, const void *other)        \
+    static int type_name##_compare(void const *dst, void const *src)           \
     {                                                                          \
-        assert(self != NULL);                                                  \
-        assert(other != NULL);                                                 \
-        type a = *(const type *)self;                                          \
-        type b = *(const type *)other;                                         \
+        assert(dst != NULL);                                                   \
+        assert(src != NULL);                                                   \
+        type a = *(type const *)dst;                                           \
+        type b = *(type const *)src;                                           \
         return a > b ? 1 : (a < b ? -1 : 0);                                   \
     }                                                                          \
-    static bool type_name##_equal(const void *self, const void *other)         \
+    static bool type_name##_equal(void const *dst, void const *src)            \
     {                                                                          \
-        assert(self != NULL);                                                  \
-        assert(other != NULL);                                                 \
-        type a = *(const type *)self;                                          \
-        type b = *(const type *)other;                                         \
+        assert(dst != NULL);                                                   \
+        assert(src != NULL);                                                   \
+        type a = *(type const *)dst;                                           \
+        type b = *(type const *)src;                                           \
         return a == b;                                                         \
     }                                                                          \
-    static size_t type_name##_hash(const void *self)                           \
+    static size_t type_name##_hash(void const *obj)                            \
     {                                                                          \
-        assert(self != NULL);                                                  \
-        return MC_HASH(self, sizeof(type));                                    \
+        assert(obj != NULL);                                                   \
+        return MC_HASH(obj, sizeof(type));                                     \
     }                                                                          \
     MC_DEFINE_POD_TYPE(type_name, type, type_name##_compare,                   \
                        type_name##_equal, type_name##_hash)
 
-static void str_move(void *self, void *source)
+static int str_compare(void const *obj1, void const *obj2)
 {
-    assert(self);
-    assert(source);
-    memcpy(self, source, sizeof(const char *));
+    assert(obj1);
+    assert(obj2);
+    char const *const *s1 = obj1;
+    char const *const *s2 = obj2;
+    return strcmp(*s1, *s2);
 }
 
-static void str_copy(void *self, const void *source)
+static bool str_equal(void const *obj1, void const *obj2)
 {
-    assert(self);
-    assert(source);
-    memcpy(self, source, sizeof(const char *));
+    assert(obj1);
+    assert(obj2);
+    char const *const *s1 = obj1;
+    char const *const *s2 = obj2;
+    return strcmp(*s1, *s2) == 0;
 }
 
-static int str_compare(const void *self, const void *other)
+static size_t str_hash(void const *obj)
 {
-    assert(self);
-    assert(other);
-    const char *const *s = self;
-    const char *const *o = other;
-    return strcmp(*s, *o);
-}
-
-static bool str_equal(const void *self, const void *other)
-{
-    assert(self);
-    assert(other);
-    const char *const *s = self;
-    const char *const *o = other;
-    return strcmp(*s, *o) == 0;
-}
-
-static size_t str_hash(const void *self)
-{
-    assert(self);
-    const char *const *s = self;
+    assert(obj);
+    char const *const *s = obj;
     return MC_HASH(*s, strlen(*s));
 }
 
@@ -77,12 +63,11 @@ MC_DEFINE_INT_TYPE(uint8, uint8_t)
 MC_DEFINE_INT_TYPE(uint16, uint16_t)
 MC_DEFINE_INT_TYPE(uint32, uint32_t)
 MC_DEFINE_INT_TYPE(uint64, uint64_t)
-MC_DEFINE_TYPE(str, const char *, NULL, str_move, str_copy, str_compare,
-               str_equal, str_hash)
+MC_DEFINE_POD_TYPE(str, char *, str_compare, str_equal, str_hash)
 
 #define MC_TYPE_FORCED_FUNC_GETTER(func_type, field)                           \
-    func_type mc_type_get_##field##_forced(const char *caller,                 \
-                                           const struct mc_type *type)         \
+    func_type mc_type_get_##field##_forced(char const *caller,                 \
+                                           struct mc_type const *type)         \
     {                                                                          \
         assert(type);                                                          \
         if (type->field)                                                       \
@@ -93,8 +78,8 @@ MC_DEFINE_TYPE(str, const char *, NULL, str_move, str_copy, str_compare,
     }
 
 MC_TYPE_FORCED_FUNC_GETTER(mc_destroy_func, destroy)
-MC_TYPE_FORCED_FUNC_GETTER(mc_move_construct_func, move_ctor)
-MC_TYPE_FORCED_FUNC_GETTER(mc_copy_construct_func, copy_ctor)
+MC_TYPE_FORCED_FUNC_GETTER(mc_move_func, move)
+MC_TYPE_FORCED_FUNC_GETTER(mc_copy_func, copy)
 MC_TYPE_FORCED_FUNC_GETTER(mc_compare_func, compare)
 MC_TYPE_FORCED_FUNC_GETTER(mc_equal_func, equal)
 MC_TYPE_FORCED_FUNC_GETTER(mc_hash_func, hash)

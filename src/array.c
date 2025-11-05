@@ -62,25 +62,25 @@ bool mc_array_is_empty(struct mc_array const *array)
     return array->len == 0;
 }
 
-void *mc_array_get(struct mc_array *array, size_t index)
+void *mc_array_get(struct mc_array const *array, size_t index)
 {
     assert(array);
     return index < array->len ? mc_array_get_unchecked(array, index) : NULL;
 }
 
-void *mc_array_get_unchecked(struct mc_array *array, size_t index)
+void *mc_array_get_unchecked(struct mc_array const *array, size_t index)
 {
     assert(array);
     return mc_ptr_add(array->data, array->elem_type->size * index);
 }
 
-void *mc_array_get_first(struct mc_array *array)
+void *mc_array_get_first(struct mc_array const *array)
 {
     assert(array);
     return array->len > 0 ? mc_array_get_unchecked(array, 0) : NULL;
 }
 
-void *mc_array_get_last(struct mc_array *array)
+void *mc_array_get_last(struct mc_array const *array)
 {
     assert(array);
     return array->len > 0 ? mc_array_get_unchecked(array, array->len - 1)
@@ -420,7 +420,7 @@ void mc_array_resize(struct mc_array *array, size_t len, void *elem)
     array->len = len;
 }
 
-bool mc_array_contains(struct mc_array *array, void const *elem)
+bool mc_array_contains(struct mc_array const *array, void const *elem)
 {
     assert(array);
     assert(elem);
@@ -434,7 +434,7 @@ bool mc_array_contains(struct mc_array *array, void const *elem)
     return false;
 }
 
-void mc_array_sort(struct mc_array *array)
+void mc_array_sort(struct mc_array const *array)
 {
     assert(array);
     mc_compare_func cmp =
@@ -442,7 +442,7 @@ void mc_array_sort(struct mc_array *array)
     mc_array_sort_with(array, cmp);
 }
 
-void mc_array_sort_with(struct mc_array *array, mc_compare_func cmp)
+void mc_array_sort_with(struct mc_array const *array, mc_compare_func cmp)
 {
     assert(array);
     assert(cmp);
@@ -453,7 +453,7 @@ void mc_array_sort_with(struct mc_array *array, mc_compare_func cmp)
     qsort(array->data, array->len, array->elem_type->size, cmp);
 }
 
-bool mc_array_binary_search(struct mc_array *array, void const *elem,
+bool mc_array_binary_search(struct mc_array const *array, void const *elem,
                             size_t *out_index)
 {
     assert(array);
@@ -483,7 +483,7 @@ bool mc_array_binary_search(struct mc_array *array, void const *elem,
     return false;
 }
 
-void mc_array_for_each(struct mc_array *array,
+void mc_array_for_each(struct mc_array const *array,
                        void (*func)(void *elem, void *user_data),
                        void *user_data)
 {
@@ -491,3 +491,100 @@ void mc_array_for_each(struct mc_array *array,
     assert(func);
     MC_ARRAY_FOR_EACH(curr, array, 0, array->len, { func(curr, user_data); });
 }
+
+void mc_array_move(struct mc_array *dst, struct mc_array *src)
+{
+    assert(dst);
+    assert(src);
+
+    *dst = *src;
+
+    src->data = NULL;
+    src->len = 0;
+    src->capacity = 0;
+}
+
+void mc_array_copy(struct mc_array *dst, struct mc_array const *src)
+{
+    mc_copy_func copy;
+
+    assert(dst);
+    assert(src);
+
+    mc_array_init(dst, src->elem_type);
+    mc_array_reserve(dst, src->len);
+
+    copy = mc_type_get_copy_forced(__func__, dst->elem_type);
+
+    for (size_t i = 0, len = src->len; i < len; ++i)
+        copy(mc_array_get_unchecked(dst, i), mc_array_get_unchecked(src, i));
+
+    dst->len = src->len;
+}
+
+int mc_array_compare(struct mc_array const *array1,
+                     struct mc_array const *array2)
+{
+    mc_compare_func cmp;
+    int res;
+
+    assert(array1);
+    assert(array2);
+
+    cmp = mc_type_get_compare_forced(__func__, array1->elem_type);
+
+    if (array1->len > array2->len)
+        return 1;
+    if (array1->len < array2->len)
+        return -1;
+
+    for (size_t i = 0, len = array1->len; i < len; ++i) {
+        res = cmp(mc_array_get_unchecked(array1, i),
+                  mc_array_get_unchecked(array2, i));
+        if (res != 0)
+            return res;
+    }
+
+    return 0;
+}
+
+bool mc_array_equal(struct mc_array const *array1,
+                    struct mc_array const *array2)
+{
+    mc_equal_func eq;
+
+    assert(array1);
+    assert(array2);
+
+    if (array1->len != array2->len)
+        return false;
+
+    eq = mc_type_get_equal_forced(__func__, array1->elem_type);
+
+    for (size_t i = 0, len = array1->len; i < len; ++i) {
+        if (!eq(mc_array_get_unchecked(array1, i),
+                mc_array_get_unchecked(array2, i)))
+            return false;
+    }
+
+    return true;
+}
+
+size_t mc_array_hash(struct mc_array const *array)
+{
+    size_t h = 0;
+    mc_hash_func hash;
+
+    assert(array);
+
+    hash = mc_type_get_hash_forced(__func__, array->elem_type);
+
+    MC_ARRAY_FOR_EACH(curr, array, 0, array->len, { h = h * 31 + hash(curr); });
+
+    return h;
+}
+
+MC_DEFINE_TYPE(mc_array, struct mc_array, (mc_destroy_func)mc_array_destroy,
+               (mc_move_func)mc_array_move, (mc_copy_func)mc_array_copy,
+               (mc_compare_func)mc_array_compare, (mc_equal_func)mc_array_equal,
+               (mc_hash_func)mc_array_hash)

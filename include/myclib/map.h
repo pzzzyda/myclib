@@ -21,6 +21,8 @@ struct mc_map {
     size_t len;
 };
 
+MC_DECLARE_TYPE(mc_map);
+
 void mc_map_init(struct mc_map *map, struct mc_type const *key_type,
                  struct mc_type const *value_type);
 
@@ -46,5 +48,9 @@ void mc_map_shrink_to_fit(struct mc_map *map);
 void *mc_map_get(struct mc_map const *map, void const *key);
 
 bool mc_map_contains_key(struct mc_map const *map, void const *key);
+
+void mc_map_move(struct mc_map *dst, struct mc_map *src);
+
+void mc_map_copy(struct mc_map *dst, struct mc_map const *src);
 
 #endif

@@ -39,20 +39,38 @@ static inline void *mc_hash_table_entry_value(struct mc_hash_table const *table,
     return mc_ptr_add(entry->storage, table->value_offset);
 }
 
-static void mc_hash_table_init_entry(struct mc_hash_table const *table,
-                                     struct mc_hash_entry *entry, void *key,
-                                     void *value, size_t hash_value)
+static void *
+mc_hash_table_allocate_entry_storage(struct mc_hash_table const *table)
 {
-    entry->storage =
-        mc_aligned_malloc(table->entry_alignment, table->entry_size);
-    if (!entry->storage) {
+    void *ptr = mc_aligned_malloc(table->entry_alignment, table->entry_size);
+    if (!ptr) {
         fprintf(stderr, "memory allocation of %zu bytes failed\n",
                 table->entry_size);
         abort();
     }
+    return ptr;
+}
+
+static void mc_hash_table_init_entry(struct mc_hash_table const *table,
+                                     struct mc_hash_entry *entry, void *key,
+                                     void *value, size_t hash_value)
+{
+    entry->storage = mc_hash_table_allocate_entry_storage(table);
     table->key_type->move(mc_hash_table_entry_key(table, entry), key);
     table->value_type->move(mc_hash_table_entry_value(table, entry), value);
     entry->hash_value = hash_value;
+}
+
+static void mc_hash_table_copy_entry(struct mc_hash_table const *table,
+                                     struct mc_hash_entry *dst,
+                                     struct mc_hash_entry const *src)
+{
+    dst->storage = mc_hash_table_allocate_entry_storage(table);
+    table->key_type->copy(mc_hash_table_entry_key(table, dst),
+                          mc_hash_table_entry_key(table, src));
+    table->value_type->copy(mc_hash_table_entry_value(table, dst),
+                            mc_hash_table_entry_value(table, src));
+    dst->hash_value = src->hash_value;
 }
 
 static void
@@ -451,3 +469,42 @@ bool mc_map_contains_key(struct mc_map const *map, void const *key)
 
     return mc_map_get(map, key) != NULL;
 }
+
+void mc_map_move(struct mc_map *dst, struct mc_map *src)
+{
+    assert(dst);
+    assert(src);
+
+    *dst = *src;
+
+    src->table.entries = NULL;
+    src->table.capacity = 0;
+    src->len = 0;
+}
+
+void mc_map_copy(struct mc_map *dst, struct mc_map const *src)
+{
+    struct mc_hash_entry *src_entries, *dst_entries;
+
+    assert(dst);
+    assert(src);
+
+    mc_type_get_copy_forced(__func__, src->table.key_type);
+    mc_type_get_copy_forced(__func__, src->table.value_type);
+
+    mc_map_init(dst, src->table.key_type, src->table.value_type);
+    mc_map_reserve(dst, src->len);
+
+    src_entries = src->table.entries;
+    dst_entries = dst->table.entries;
+    for (size_t i = 0, capacity = src->table.capacity; i < capacity; ++i) {
+        if (!mc_hash_entry_is_valid(src_entries + i))
+            continue;
+
+        mc_hash_table_copy_entry(&dst->table, dst_entries + i, src_entries + i);
+    }
+}
+
+MC_DEFINE_TYPE(mc_map, struct mc_map, (mc_destroy_func)mc_map_destroy,
+               (mc_move_func)mc_map_move, (mc_copy_func)mc_map_copy, NULL, NULL,
+               NULL)

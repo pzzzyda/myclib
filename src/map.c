@@ -28,13 +28,13 @@ static inline bool mc_hash_entry_is_valid(struct mc_hash_entry const *entry)
 }
 
 static inline void *mc_hash_table_entry_key(struct mc_hash_table const *table,
-                                            struct mc_hash_entry *entry)
+                                            struct mc_hash_entry const *entry)
 {
     return mc_ptr_add(entry->storage, table->key_offset);
 }
 
 static inline void *mc_hash_table_entry_value(struct mc_hash_table const *table,
-                                              struct mc_hash_entry *entry)
+                                              struct mc_hash_entry const *entry)
 {
     return mc_ptr_add(entry->storage, table->value_offset);
 }

@@ -10,6 +10,7 @@ add_library(${PROJECT_NAME} STATIC
         src/aligned_malloc.c
         src/array.c
         src/hash.c
+        src/list.c
         src/map.c
         src/string.c
         src/type.c

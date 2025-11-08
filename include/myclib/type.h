@@ -69,6 +69,42 @@ struct mc_type {
     MC_DEFINE_TYPE(type_name, type, NULL, type_name##_move, type_name##_copy,  \
                    compare_func, equal_func, hash_func)
 
+#define MC_DECLARE_EXTERNAL_TYPE(type_name)                                    \
+    extern struct mc_type const type_name##_mc_type
+
+#define MC_DEFINE_EXTERNAL_TYPE(type_name, type, destroy_func, move_func,      \
+                                copy_func, compare_func, equal_func,           \
+                                hash_func)                                     \
+    struct mc_type const type_name##_mc_type = {                               \
+        .name = #type_name,                                                    \
+        .alignment = alignof(type),                                            \
+        .size = sizeof(type),                                                  \
+        .destroy = destroy_func,                                               \
+        .move = move_func,                                                     \
+        .copy = copy_func,                                                     \
+        .compare = compare_func,                                               \
+        .equal = equal_func,                                                   \
+        .hash = hash_func,                                                     \
+    };
+
+#define MC_DEFINE_EXTERNAL_POD_TYPE(type_name, type, compare_func, equal_func, \
+                                    hash_func)                                 \
+    static void type_name##_move(void *dst, void *src)                         \
+    {                                                                          \
+        assert(dst);                                                           \
+        assert(src);                                                           \
+        memcpy(dst, src, sizeof(type));                                        \
+    }                                                                          \
+    static void type_name##_copy(void *dst, void const *src)                   \
+    {                                                                          \
+        assert(dst);                                                           \
+        assert(src);                                                           \
+        memcpy(dst, src, sizeof(type));                                        \
+    }                                                                          \
+    MC_DEFINE_EXTERNAL_TYPE(type_name, type, NULL, type_name##_move,           \
+                            type_name##_copy, compare_func, equal_func,        \
+                            hash_func)
+
 MC_DECLARE_TYPE(int8);
 MC_DECLARE_TYPE(int16);
 MC_DECLARE_TYPE(int32);

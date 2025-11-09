@@ -27,6 +27,31 @@ void mc_array_init(struct mc_array *array, struct mc_type const *elem_type)
     array->elem_type = elem_type;
 }
 
+void mc_array_with_capacity(struct mc_array *array,
+                            struct mc_type const *elem_type, size_t capacity)
+{
+    assert(array);
+    assert(elem_type);
+    assert(elem_type->move);
+    assert(elem_type->size > 0);
+    assert(mc_is_pow_of_two(elem_type->alignment));
+    mc_array_init(array, elem_type);
+    mc_array_reserve_exact(array, capacity);
+}
+
+void mc_array_from(struct mc_array *array, struct mc_type const *elem_type,
+                   void *elems, size_t elems_len)
+{
+    assert(array);
+    assert(elem_type);
+    assert(elem_type->move);
+    assert(elem_type->size > 0);
+    assert(mc_is_pow_of_two(elem_type->alignment));
+    assert(elems || elems_len == 0);
+    mc_array_init(array, elem_type);
+    mc_array_append_range(array, elems, elems_len);
+}
+
 static void mc_array_free_data(struct mc_array *array)
 {
     if (array->capacity > 0) {
@@ -432,6 +457,35 @@ bool mc_array_contains(struct mc_array const *array, void const *elem)
     });
 
     return false;
+}
+
+void *mc_array_find(struct mc_array const *array, void const *elem)
+{
+    assert(array);
+
+    mc_equal_func eq = mc_type_get_equal_forced(__func__, array->elem_type);
+
+    MC_ARRAY_FOR_EACH(curr, array, 0, array->len, {
+        if (eq(curr, elem))
+            return curr;
+    });
+
+    return NULL;
+}
+
+void *mc_array_find_if(struct mc_array const *array,
+                       bool (*pred)(void const *, void const *user_data),
+                       void const *user_data)
+{
+    assert(array);
+    assert(pred);
+
+    MC_ARRAY_FOR_EACH(curr, array, 0, array->len, {
+        if (pred(curr, user_data))
+            return curr;
+    });
+
+    return NULL;
 }
 
 void mc_array_sort(struct mc_array const *array)

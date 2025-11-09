@@ -74,23 +74,23 @@ static void mc_hash_table_copy_entry(struct mc_hash_table const *table,
 }
 
 static void
-mc_hash_table_destroy_entry_storage(struct mc_hash_table const *table,
+mc_hash_table_cleanup_entry_storage(struct mc_hash_table const *table,
                                     struct mc_hash_entry *entry)
 {
-    mc_destroy_func destroy_key = table->key_type->destroy;
-    mc_destroy_func destroy_value = table->value_type->destroy;
+    mc_cleanup_func cleanup_key = table->key_type->cleanup;
+    mc_cleanup_func cleanup_value = table->value_type->cleanup;
 
-    if (destroy_key)
-        destroy_key(mc_hash_table_entry_key(table, entry));
+    if (cleanup_key)
+        cleanup_key(mc_hash_table_entry_key(table, entry));
 
-    if (destroy_value)
-        destroy_value(mc_hash_table_entry_value(table, entry));
+    if (cleanup_value)
+        cleanup_value(mc_hash_table_entry_value(table, entry));
 }
 
-static void mc_hash_table_destroy_entry(struct mc_hash_table const *table,
+static void mc_hash_table_cleanup_entry(struct mc_hash_table const *table,
                                         struct mc_hash_entry *entry)
 {
-    mc_hash_table_destroy_entry_storage(table, entry);
+    mc_hash_table_cleanup_entry_storage(table, entry);
     mc_aligned_free(entry->storage);
     entry->storage = NULL;
 }
@@ -100,7 +100,7 @@ mc_hash_table_replace_entry_content(struct mc_hash_table const *table,
                                     struct mc_hash_entry *entry, void *key,
                                     void *value)
 {
-    mc_hash_table_destroy_entry_storage(table, entry);
+    mc_hash_table_cleanup_entry_storage(table, entry);
     table->key_type->move(mc_hash_table_entry_key(table, entry), key);
     table->value_type->move(mc_hash_table_entry_value(table, entry), value);
 }
@@ -201,12 +201,12 @@ static void mc_hash_table_remove_all_entries(struct mc_hash_table *table)
     struct mc_hash_entry *entries = table->entries;
     for (size_t i = 0, capacity = table->capacity; i < capacity; ++i) {
         if (mc_hash_entry_is_valid(&entries[i]))
-            mc_hash_table_destroy_entry(table, &entries[i]);
+            mc_hash_table_cleanup_entry(table, &entries[i]);
         entries[i].hash_value = 0;
     }
 }
 
-static void mc_hash_table_destroy(struct mc_hash_table *table)
+static void mc_hash_table_cleanup(struct mc_hash_table *table)
 {
     mc_hash_table_remove_all_entries(table);
     mc_hash_table_free_entries(table);
@@ -272,7 +272,7 @@ static void mc_hash_table_remove_entry(struct mc_hash_table *table,
         table->value_type->move(out_value,
                                 mc_hash_table_entry_value(table, entry));
 
-    mc_hash_table_destroy_entry(table, entry);
+    mc_hash_table_cleanup_entry(table, entry);
 }
 
 static void *mc_hash_table_lookup_value(struct mc_hash_table const *table,
@@ -303,11 +303,11 @@ void mc_map_init(struct mc_map *map, struct mc_type const *key_type,
     map->len = 0;
 }
 
-void mc_map_destroy(struct mc_map *map)
+void mc_map_cleanup(struct mc_map *map)
 {
     assert(map);
 
-    mc_hash_table_destroy(&map->table);
+    mc_hash_table_cleanup(&map->table);
 
     map->len = 0;
 }
@@ -505,6 +505,6 @@ void mc_map_copy(struct mc_map *dst, struct mc_map const *src)
     }
 }
 
-MC_DEFINE_TYPE(mc_map, struct mc_map, (mc_destroy_func)mc_map_destroy,
+MC_DEFINE_TYPE(mc_map, struct mc_map, (mc_cleanup_func)mc_map_cleanup,
                (mc_move_func)mc_map_move, (mc_copy_func)mc_map_copy, NULL, NULL,
                NULL)

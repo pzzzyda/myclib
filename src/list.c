@@ -22,7 +22,7 @@ void mc_list_init(struct mc_list *list, struct mc_type const *elem_type)
     list->node_size = list->elem_offset + elem_type->size;
 }
 
-void mc_list_destroy(struct mc_list *list)
+void mc_list_cleanup(struct mc_list *list)
 {
     assert(list);
     mc_list_clear(list);
@@ -77,8 +77,8 @@ static struct mc_list_node *mc_list_new_node(struct mc_list *list, void *elem)
 
 static void mc_list_delete_node(struct mc_list *list, struct mc_list_node *node)
 {
-    if (list->elem_type->destroy)
-        list->elem_type->destroy(mc_list_node_elem(list, node));
+    if (list->elem_type->cleanup)
+        list->elem_type->cleanup(mc_list_node_elem(list, node));
     mc_aligned_free(node);
 }
 
@@ -367,7 +367,7 @@ size_t mc_list_hash(struct mc_list const *list)
     return h;
 }
 
-MC_DEFINE_TYPE(mc_list, struct mc_list, (mc_destroy_func)mc_list_destroy,
+MC_DEFINE_TYPE(mc_list, struct mc_list, (mc_cleanup_func)mc_list_cleanup,
                (mc_move_func)mc_list_move, (mc_copy_func)mc_list_copy,
                (mc_compare_func)mc_list_compare, (mc_equal_func)mc_list_equal,
                (mc_hash_func)mc_list_hash)

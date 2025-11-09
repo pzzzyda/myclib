@@ -22,7 +22,7 @@ MC_DECLARE_TYPE(mc_list);
 
 void mc_list_init(struct mc_list *list, struct mc_type const *elem_type);
 
-void mc_list_destroy(struct mc_list *list);
+void mc_list_cleanup(struct mc_list *list);
 
 size_t mc_list_len(struct mc_list const *list);
 bool mc_list_is_empty(struct mc_list const *list);

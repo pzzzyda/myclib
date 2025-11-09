@@ -10,7 +10,7 @@ struct test_object {
     char *name;
 };
 
-static void test_object_destroy(void *obj)
+static void test_object_cleanup(void *obj)
 {
     assert(obj);
     struct test_object *o = (struct test_object *)obj;
@@ -111,7 +111,7 @@ static size_t test_object_hash(const void *obj)
     return hash;
 }
 
-MC_DEFINE_TYPE(test_object, struct test_object, test_object_destroy,
+MC_DEFINE_TYPE(test_object, struct test_object, test_object_cleanup,
                test_object_move, test_object_copy, test_object_compare,
                test_object_equal, test_object_hash)
 
@@ -201,8 +201,8 @@ static void test_basic_operations(void)
     printf("After clear, length: %zu\n", mc_array_len(&arr));
     printf("After clear, capacity: %zu\n", mc_array_capacity(&arr));
 
-    mc_array_destroy(&arr);
-    printf("Array destroyed\n\n");
+    mc_array_cleanup(&arr);
+    printf("Array cleaned\n\n");
 }
 
 static void test_advanced_operations_for_each_handler(void *elem,
@@ -275,8 +275,8 @@ static void test_advanced_operations(void)
     mc_array_for_each(&arr, test_advanced_operations_for_each_handler,
                       (void *)"Element");
 
-    mc_array_destroy(&arr);
-    printf("Array destroyed\n\n");
+    mc_array_cleanup(&arr);
+    printf("Array cleaned\n\n");
 }
 
 static void test_custom_object_type(void)
@@ -305,18 +305,18 @@ static void test_custom_object_type(void)
     struct test_object search_obj = create_test_object(2, "Object 2");
     printf("Contains object with id=2, name='Object 2': %s\n",
            mc_array_contains(&arr, &search_obj) ? "true" : "false");
-    test_object_destroy(&search_obj);
+    test_object_cleanup(&search_obj);
 
     struct test_object removed_obj;
     mc_array_remove(&arr, 1, &removed_obj);
     printf("Removed object: id=%d, name=%s\n", removed_obj.id,
            removed_obj.name);
 
-    test_object_destroy(&removed_obj);
+    test_object_cleanup(&removed_obj);
 
-    printf("Destroying array with custom objects...\n");
-    mc_array_destroy(&arr);
-    printf("Array with custom objects destroyed\n\n");
+    printf("Cleaning array with custom objects...\n");
+    mc_array_cleanup(&arr);
+    printf("Array with custom objects cleaned\n\n");
 }
 
 static void test_edge_cases(void)
@@ -345,8 +345,8 @@ static void test_edge_cases(void)
     printf("After shrink_to(10) with lower current capacity, capacity: %zu\n",
            mc_array_capacity(&arr));
 
-    mc_array_destroy(&arr);
-    printf("Edge case array destroyed\n\n");
+    mc_array_cleanup(&arr);
+    printf("Edge case array cleaned\n\n");
 }
 
 int main(void)

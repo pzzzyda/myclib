@@ -84,7 +84,7 @@ static void mc_string_deallocate(struct mc_string *str)
     }
 }
 
-void mc_string_destroy(struct mc_string *str)
+void mc_string_cleanup(struct mc_string *str)
 {
     assert(str);
     mc_string_clear(str);
@@ -361,7 +361,7 @@ void mc_string_replace(struct mc_string *str, char const *from, char const *to)
     }
     mc_string_append_bytes(&new_str, start, str->len - (start - str->data));
 
-    mc_string_destroy(str);
+    mc_string_cleanup(str);
     mc_string_move(str, &new_str);
 }
 
@@ -680,7 +680,7 @@ size_t mc_string_hash(struct mc_string const *str)
     return MC_HASH(str->data, str->len);
 }
 
-MC_DEFINE_TYPE(mc_string, struct mc_string, (mc_destroy_func)mc_string_destroy,
+MC_DEFINE_TYPE(mc_string, struct mc_string, (mc_cleanup_func)mc_string_cleanup,
                (mc_move_func)mc_string_move, (mc_copy_func)mc_string_copy,
                (mc_compare_func)mc_string_compare,
                (mc_equal_func)mc_string_equal, (mc_hash_func)mc_string_hash)

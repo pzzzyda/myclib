@@ -19,7 +19,7 @@ void mc_string_format(struct mc_string *str, char const *fmt, ...);
 void mc_string_join(struct mc_array const *parts, char const *separator,
                     struct mc_string *str);
 
-void mc_string_destroy(struct mc_string *str);
+void mc_string_cleanup(struct mc_string *str);
 
 size_t mc_string_len(struct mc_string const *str);
 size_t mc_string_capacity(struct mc_string const *str);

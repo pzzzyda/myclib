@@ -61,7 +61,7 @@ static void mc_array_free_data(struct mc_array *array)
     }
 }
 
-void mc_array_destroy(struct mc_array *array)
+void mc_array_cleanup(struct mc_array *array)
 {
     assert(array);
     mc_array_truncate(array, 0);
@@ -162,8 +162,8 @@ static void mc_array_extract_one(struct mc_array *array, size_t index,
 
     if (out_elem)
         array->elem_type->move(out_elem, elem);
-    else if (array->elem_type->destroy)
-        array->elem_type->destroy(elem);
+    else if (array->elem_type->cleanup)
+        array->elem_type->cleanup(elem);
 }
 
 static void mc_array_extract_range(struct mc_array *array, size_t index,
@@ -188,14 +188,14 @@ static void mc_array_extract_range(struct mc_array *array, size_t index,
         }
     }
 
-    mc_destroy_func destroy = array->elem_type->destroy;
-    if (destroy) {
+    mc_cleanup_func cleanup = array->elem_type->cleanup;
+    if (cleanup) {
         index += move_count;
 
         char *remaining = mc_array_get_unchecked(array, index);
 
         for (size_t i = move_count; i < len; ++i) {
-            destroy(remaining);
+            cleanup(remaining);
             remaining += elem_size;
         }
     }
@@ -414,9 +414,9 @@ void mc_array_truncate(struct mc_array *array, size_t len)
     if (len >= array->len)
         return;
 
-    mc_destroy_func destroy = array->elem_type->destroy;
-    if (destroy)
-        MC_ARRAY_FOR_EACH(curr, array, len, array->len, { destroy(curr); });
+    mc_cleanup_func cleanup = array->elem_type->cleanup;
+    if (cleanup)
+        MC_ARRAY_FOR_EACH(curr, array, len, array->len, { cleanup(curr); });
 
     array->len = len;
 }
@@ -429,8 +429,8 @@ void mc_array_resize(struct mc_array *array, size_t len, void *elem)
 
     if (len <= array->len) {
         mc_array_truncate(array, len);
-        if (elem && array->elem_type->destroy)
-            array->elem_type->destroy(elem);
+        if (elem && array->elem_type->cleanup)
+            array->elem_type->cleanup(elem);
         return;
     }
 
@@ -638,7 +638,7 @@ size_t mc_array_hash(struct mc_array const *array)
     return h;
 }
 
-MC_DEFINE_TYPE(mc_array, struct mc_array, (mc_destroy_func)mc_array_destroy,
+MC_DEFINE_TYPE(mc_array, struct mc_array, (mc_cleanup_func)mc_array_cleanup,
                (mc_move_func)mc_array_move, (mc_copy_func)mc_array_copy,
                (mc_compare_func)mc_array_compare, (mc_equal_func)mc_array_equal,
                (mc_hash_func)mc_array_hash)

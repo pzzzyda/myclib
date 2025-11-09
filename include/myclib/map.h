@@ -26,7 +26,7 @@ MC_DECLARE_TYPE(mc_map);
 void mc_map_init(struct mc_map *map, struct mc_type const *key_type,
                  struct mc_type const *value_type);
 
-void mc_map_destroy(struct mc_map *map);
+void mc_map_cleanup(struct mc_map *map);
 
 size_t mc_map_len(struct mc_map const *map);
 

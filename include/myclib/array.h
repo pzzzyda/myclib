@@ -21,7 +21,7 @@ void mc_array_with_capacity(struct mc_array *array,
 void mc_array_from(struct mc_array *array, struct mc_type const *elem_type,
                    void *elems, size_t elems_len);
 
-void mc_array_destroy(struct mc_array *array);
+void mc_array_cleanup(struct mc_array *array);
 
 size_t mc_array_len(struct mc_array const *array);
 size_t mc_array_capacity(struct mc_array const *array);

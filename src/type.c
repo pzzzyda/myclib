@@ -77,7 +77,7 @@ MC_DEFINE_POD_TYPE(str, char *, str_compare, str_equal, str_hash)
         abort();                                                               \
     }
 
-MC_TYPE_FORCED_FUNC_GETTER(mc_destroy_func, destroy)
+MC_TYPE_FORCED_FUNC_GETTER(mc_cleanup_func, cleanup)
 MC_TYPE_FORCED_FUNC_GETTER(mc_move_func, move)
 MC_TYPE_FORCED_FUNC_GETTER(mc_copy_func, copy)
 MC_TYPE_FORCED_FUNC_GETTER(mc_compare_func, compare)

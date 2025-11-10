@@ -29,28 +29,26 @@ void mc_map_init(struct mc_map *map, struct mc_type const *key_type,
 void mc_map_cleanup(struct mc_map *map);
 
 size_t mc_map_len(struct mc_map const *map);
-
 size_t mc_map_capacity(struct mc_map const *map);
-
 bool mc_map_is_empty(struct mc_map const *map);
 
 void mc_map_insert(struct mc_map *map, void *key, void *value);
-
 bool mc_map_remove(struct mc_map *map, void const *key, void *out_key,
                    void *out_value);
-
 void mc_map_clear(struct mc_map *map);
 
 void mc_map_reserve(struct mc_map *map, size_t additional);
-
 void mc_map_shrink_to_fit(struct mc_map *map);
 
 void *mc_map_get(struct mc_map const *map, void const *key);
-
 bool mc_map_contains_key(struct mc_map const *map, void const *key);
 
-void mc_map_move(struct mc_map *dst, struct mc_map *src);
+void mc_map_for_each(struct mc_map const *map,
+                     void (*func)(void const *key, void *value,
+                                  void *user_data),
+                     void *user_data);
 
+void mc_map_move(struct mc_map *dst, struct mc_map *src);
 void mc_map_copy(struct mc_map *dst, struct mc_map const *src);
 
 #endif

@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "myclib/map.h"
@@ -114,6 +115,20 @@ static void mc_hash_table_init(struct mc_hash_table *table,
 
     table->key_type = key_type;
     table->value_type = value_type;
+    if (key_type->alignment > value_type->alignment) {
+        table->entry_alignment = key_type->alignment;
+        table->key_offset = 0;
+        size_t mask = value_type->alignment - 1;
+        table->value_offset = (key_type->size + mask) & ~mask;
+        table->entry_size = table->value_offset + value_type->size;
+    } else {
+        table->entry_alignment = value_type->alignment;
+        table->value_offset = 0;
+        size_t mask = key_type->alignment - 1;
+        table->key_offset = (value_type->size + mask) & ~mask;
+        table->entry_size = table->key_offset + key_type->size;
+    }
+
     if (capacity == 0) {
         table->entries = NULL;
         table->capacity = 0;
@@ -128,20 +143,6 @@ static void mc_hash_table_init(struct mc_hash_table *table,
     }
     memset(table->entries, 0, total_size);
     table->capacity = capacity;
-
-    if (key_type->alignment > value_type->alignment) {
-        table->entry_alignment = key_type->alignment;
-        table->key_offset = 0;
-        size_t mask = value_type->alignment - 1;
-        table->value_offset = (key_type->size + mask) & ~mask;
-        table->entry_size = table->value_offset + value_type->size;
-    } else {
-        table->entry_alignment = value_type->alignment;
-        table->value_offset = 0;
-        size_t mask = key_type->alignment - 1;
-        table->key_offset = (value_type->size + mask) & ~mask;
-        table->entry_size = table->key_offset + key_type->size;
-    }
 }
 
 static void mc_hash_table_free_entries(struct mc_hash_table *table)
@@ -285,6 +286,22 @@ static void *mc_hash_table_lookup_value(struct mc_hash_table const *table,
         return mc_hash_table_entry_value(table, entry);
 
     return NULL;
+}
+
+static void mc_hash_table_for_each(struct mc_hash_table const *table,
+                                   void (*func)(void const *key, void *value,
+                                                void *user_data),
+                                   void *user_data)
+{
+    struct mc_hash_entry *entries = table->entries;
+
+    for (size_t i = 0, capacity = table->capacity; i < capacity; ++i) {
+        if (!mc_hash_entry_is_valid(&entries[i]))
+            continue;
+
+        func(mc_hash_table_entry_key(table, &entries[i]),
+             mc_hash_table_entry_value(table, &entries[i]), user_data);
+    }
 }
 
 void mc_map_init(struct mc_map *map, struct mc_type const *key_type,
@@ -457,6 +474,9 @@ void *mc_map_get(struct mc_map const *map, void const *key)
     assert(map);
     assert(key);
 
+    if (map->len == 0)
+        return NULL;
+
     hash_value = map->table.key_type->hash(key);
     hash_value = mc_map_scramble_hash(hash_value);
     return mc_hash_table_lookup_value(&map->table, key, hash_value);
@@ -468,6 +488,16 @@ bool mc_map_contains_key(struct mc_map const *map, void const *key)
     assert(key);
 
     return mc_map_get(map, key) != NULL;
+}
+
+void mc_map_for_each(struct mc_map const *map,
+                     void (*func)(void const *key, void *value,
+                                  void *user_data),
+                     void *user_data)
+{
+    assert(map);
+    assert(func);
+    mc_hash_table_for_each(&map->table, func, user_data);
 }
 
 void mc_map_move(struct mc_map *dst, struct mc_map *src)
@@ -493,6 +523,10 @@ void mc_map_copy(struct mc_map *dst, struct mc_map const *src)
     mc_type_get_copy_forced(__func__, src->table.value_type);
 
     mc_map_init(dst, src->table.key_type, src->table.value_type);
+
+    if (src->len == 0)
+        return;
+
     mc_map_reserve(dst, src->len);
 
     src_entries = src->table.entries;

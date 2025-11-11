@@ -13,6 +13,8 @@ add_library(${PROJECT_NAME} STATIC
         src/list.c
         src/map.c
         src/string.c
+        src/test.c
+        src/time.c
         src/type.c
 )
 

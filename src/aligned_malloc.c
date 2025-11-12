@@ -15,10 +15,10 @@ void *mc_aligned_malloc(size_t alignment, size_t size)
     if (!ISPOWOF2(alignment))
         return NULL;
 
-    if (alignment > alignof(max_align_t))
+    size_t extras = PTRSZ + (alignment - 1);
+    if (size > SIZE_MAX - extras)
         return NULL;
 
-    size_t extras = PTRSZ + (alignment - 1);
     void *raw_ptr = malloc(size + extras);
     if (!raw_ptr)
         return NULL;

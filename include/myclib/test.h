@@ -155,8 +155,8 @@ void mc_test_suite_move(void *dst, void *src);
 
 #define MC_ASSERT_CMP_PTR(a, cmp, b)                                           \
     do {                                                                       \
-        void *a_ = (a);                                                        \
-        void *b_ = (b);                                                        \
+        void const *a_ = (a);                                                  \
+        void const *b_ = (b);                                                  \
         if (!(a_ cmp b_)) {                                                    \
             mc_assert_fail(__FILE__, __LINE__, #a " " #cmp " " #b,             \
                            "\nleft: %p\nright: %p", a_, b_);                   \

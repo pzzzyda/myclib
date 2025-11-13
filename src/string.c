@@ -305,7 +305,7 @@ void mc_string_trim_left(struct mc_string *str)
 {
     assert(str);
 
-    size_t const len = str->len;
+    size_t len = str->len;
     if (len == 0)
         return;
 
@@ -313,9 +313,10 @@ void mc_string_trim_left(struct mc_string *str)
     char *const data = str->data;
     while (i < len && isspace(data[i]))
         ++i;
-    memmove(data, data + i, len - i);
-    str->data[i] = '\0';
-    str->len = i;
+    len -= i;
+    memmove(data, data + i, len);
+    data[len] = '\0';
+    str->len = len;
 }
 
 void mc_string_trim_right(struct mc_string *str)
@@ -329,10 +330,10 @@ void mc_string_trim_right(struct mc_string *str)
     size_t i = len - 1;
     char *const data = str->data;
     while (isspace(data[i])) {
-        if (i == 0)
+        if (i-- == 0)
             break;
-        --i;
     }
+    ++i;
     data[i] = '\0';
     str->len = i;
 }

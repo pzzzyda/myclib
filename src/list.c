@@ -63,6 +63,9 @@ static struct mc_list_node *mc_list_allocate_node(struct mc_list *list)
         abort();
     }
 
+    node->next = NULL;
+    node->prev = NULL;
+
     return node;
 }
 

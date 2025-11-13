@@ -514,7 +514,8 @@ void mc_map_move(struct mc_map *dst, struct mc_map *src)
 
 void mc_map_copy(struct mc_map *dst, struct mc_map const *src)
 {
-    struct mc_hash_entry *src_entries, *dst_entries;
+    struct mc_hash_entry *src_entries;
+    struct mc_hash_table *dst_table;
 
     assert(dst);
     assert(src);
@@ -530,13 +531,17 @@ void mc_map_copy(struct mc_map *dst, struct mc_map const *src)
     mc_map_reserve(dst, src->len);
 
     src_entries = src->table.entries;
-    dst_entries = dst->table.entries;
+    dst_table = &dst->table;
     for (size_t i = 0, capacity = src->table.capacity; i < capacity; ++i) {
         if (!mc_hash_entry_is_valid(src_entries + i))
             continue;
 
-        mc_hash_table_copy_entry(&dst->table, dst_entries + i, src_entries + i);
+        struct mc_hash_entry entry;
+        mc_hash_table_copy_entry(dst_table, &entry, src_entries + i);
+        mc_hash_table_insert_with_probing(dst_table, &entry);
     }
+
+    dst->len = src->len;
 }
 
 MC_DEFINE_TYPE(mc_map, struct mc_map, (mc_cleanup_func)mc_map_cleanup,

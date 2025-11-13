@@ -767,6 +767,25 @@ MC_TEST_IN_SUITE(array, get_functions)
     mc_array_cleanup(&array);
 }
 
+MC_TEST_IN_SUITE(array, iter_functions)
+{
+    int elems[] = {1, 2, 3, 4, 5};
+    struct mc_array array;
+    mc_array_from(&array, int32_get_mc_type(), elems, 5);
+
+    struct mc_iter iter;
+    mc_array_iter_init(&iter, &array);
+
+    size_t i = 0;
+    while (iter.next(&iter)) {
+        int *val = iter.value;
+        MC_ASSERT(*val == elems[i]);
+        i++;
+    }
+
+    mc_array_cleanup(&array);
+}
+
 int main(void)
 {
 #if !MC_COMPILER_SUPPORTS_ATTRIBUTE
@@ -791,6 +810,7 @@ int main(void)
     register_test_array_test_object_basic_operations();
     register_test_array_test_object_copy_and_move();
     register_test_array_test_object_compare_and_hash();
+    register_test_array_iter_functions();
 #endif
     return mc_run_all_tests();
 }

@@ -370,6 +370,28 @@ size_t mc_list_hash(struct mc_list const *list)
     return h;
 }
 
+void mc_list_iter_init(struct mc_iter *iter, struct mc_list const *list)
+{
+    assert(iter);
+    assert(list);
+    iter->container = list;
+    iter->current = list->head;
+    iter->value = NULL;
+    iter->key = NULL;
+    iter->next = mc_list_iter_next;
+}
+
+bool mc_list_iter_next(struct mc_iter *iter)
+{
+    assert(iter);
+    struct mc_list_node *curr = iter->current;
+    if (!curr)
+        return false;
+    iter->value = mc_list_node_elem(iter->container, curr);
+    iter->current = curr->next;
+    return true;
+}
+
 MC_DEFINE_TYPE(mc_list, struct mc_list, (mc_cleanup_func)mc_list_cleanup,
                (mc_move_func)mc_list_move, (mc_copy_func)mc_list_copy,
                (mc_compare_func)mc_list_compare, (mc_equal_func)mc_list_equal,

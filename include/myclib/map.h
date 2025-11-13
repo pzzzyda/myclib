@@ -2,6 +2,7 @@
 #define MYCLIB_MAP_H
 
 #include "myclib/type.h"
+#include "myclib/iter.h"
 
 struct mc_hash_entry;
 
@@ -50,5 +51,8 @@ void mc_map_for_each(struct mc_map const *map,
 
 void mc_map_move(struct mc_map *dst, struct mc_map *src);
 void mc_map_copy(struct mc_map *dst, struct mc_map const *src);
+
+void mc_map_iter_init(struct mc_iter *iter, struct mc_map const *map);
+bool mc_map_iter_next(struct mc_iter *iter);
 
 #endif

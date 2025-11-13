@@ -380,6 +380,42 @@ MC_TEST_IN_SUITE(map, is_empty)
     mc_map_cleanup(&map);
 }
 
+MC_TEST_IN_SUITE(map, iter)
+{
+    struct mc_map map;
+    struct {
+        char const *key;
+        int value;
+    } pairs[] = {{"one", 1}, {"two", 2}, {"three", 3}};
+
+    mc_map_init(&map, str_get_mc_type(), int_get_mc_type());
+    for (size_t i = 0; i < sizeof(pairs) / sizeof(pairs[0]); ++i) {
+        mc_map_insert(&map, &pairs[i].key, &pairs[i].value);
+    }
+
+    struct mc_iter iter;
+    mc_map_iter_init(&iter, &map);
+    size_t count = 0;
+    while (iter.next(&iter)) {
+        char const *key = *(char const *const *)iter.key;
+        int value = *(int *)iter.value;
+        MC_ASSERT(key != NULL);
+        MC_ASSERT(value != 0);
+        MC_ASSERT_LT_SIZE(count, sizeof(pairs) / sizeof(pairs[0]));
+        bool found = false;
+        for (size_t i = 0; i < sizeof(pairs) / sizeof(pairs[0]); ++i) {
+            if (strcmp(key, pairs[i].key) == 0) {
+                MC_ASSERT_EQ_INT(value, pairs[i].value);
+                found = true;
+                break;
+            }
+        }
+        MC_ASSERT_TRUE(found);
+        count++;
+    }
+    mc_map_cleanup(&map);
+}
+
 int main(void)
 {
 #if !MC_COMPILER_SUPPORTS_ATTRIBUTE
@@ -396,6 +432,7 @@ int main(void)
     register_test_map_move();
     register_test_map_copy();
     register_test_map_is_empty();
+    register_test_map_iter();
 #endif
     return mc_run_all_tests();
 }

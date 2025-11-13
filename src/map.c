@@ -544,6 +544,36 @@ void mc_map_copy(struct mc_map *dst, struct mc_map const *src)
     dst->len = src->len;
 }
 
+void mc_map_iter_init(struct mc_iter *iter, struct mc_map const *map)
+{
+    assert(iter);
+    assert(map);
+    iter->container = map;
+    iter->current = mc_map_is_empty(map) ? NULL : map->table.entries;
+    iter->key = NULL;
+    iter->value = NULL;
+    iter->next = mc_map_iter_next;
+}
+
+bool mc_map_iter_next(struct mc_iter *iter)
+{
+    assert(iter);
+    struct mc_hash_entry *curr = iter->current;
+    if (!curr)
+        return false;
+    struct mc_map const *map = iter->container;
+    struct mc_hash_entry const *const end =
+        &map->table.entries[map->table.capacity];
+    while (curr < end && !mc_hash_entry_is_valid(curr))
+        ++curr;
+    if (curr >= end)
+        return false;
+    iter->current = curr + 1;
+    iter->key = mc_hash_table_entry_key(&map->table, curr);
+    iter->value = mc_hash_table_entry_value(&map->table, curr);
+    return true;
+}
+
 MC_DEFINE_TYPE(mc_map, struct mc_map, (mc_cleanup_func)mc_map_cleanup,
                (mc_move_func)mc_map_move, (mc_copy_func)mc_map_copy, NULL, NULL,
                NULL)

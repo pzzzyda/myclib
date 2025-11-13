@@ -638,6 +638,34 @@ size_t mc_array_hash(struct mc_array const *array)
     return h;
 }
 
+void mc_array_iter_init(struct mc_iter *iter, struct mc_array const *array)
+{
+    assert(iter);
+    assert(array);
+    iter->container = array;
+    iter->current = array->len == 0 ? NULL : array->data;
+    iter->value = NULL;
+    iter->key = NULL;
+    iter->next = mc_array_iter_next;
+}
+
+bool mc_array_iter_next(struct mc_iter *iter)
+{
+    assert(iter);
+    void *curr = iter->current;
+    if (!curr)
+        return false;
+    iter->value = curr;
+    struct mc_array const *array = iter->container;
+    void const *const end = mc_array_get_unchecked(array, array->len);
+    curr = mc_ptr_add(curr, array->elem_type->size);
+    if (curr >= end)
+        iter->current = NULL;
+    else
+        iter->current = curr;
+    return true;
+}
+
 MC_DEFINE_TYPE(mc_array, struct mc_array, (mc_cleanup_func)mc_array_cleanup,
                (mc_move_func)mc_array_move, (mc_copy_func)mc_array_copy,
                (mc_compare_func)mc_array_compare, (mc_equal_func)mc_array_equal,

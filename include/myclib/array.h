@@ -2,6 +2,7 @@
 #define MYCLIB_ARRAY_H
 
 #include "myclib/type.h"
+#include "myclib/iter.h"
 
 struct mc_array {
     struct mc_type const *elem_type;
@@ -73,5 +74,8 @@ int mc_array_compare(struct mc_array const *array1,
 bool mc_array_equal(struct mc_array const *array1,
                     struct mc_array const *array2);
 size_t mc_array_hash(struct mc_array const *array);
+
+void mc_array_iter_init(struct mc_iter *iter, struct mc_array const *array);
+bool mc_array_iter_next(struct mc_iter *iter);
 
 #endif

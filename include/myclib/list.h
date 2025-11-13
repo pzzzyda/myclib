@@ -2,6 +2,7 @@
 #define MYCLIB_LIST_H
 
 #include "myclib/type.h"
+#include "myclib/iter.h"
 
 struct mc_list_node {
     struct mc_list_node *prev;
@@ -44,5 +45,8 @@ void mc_list_copy(struct mc_list *dst, struct mc_list const *src);
 int mc_list_compare(struct mc_list const *list1, struct mc_list const *list2);
 bool mc_list_equal(struct mc_list const *list1, struct mc_list const *list2);
 size_t mc_list_hash(struct mc_list const *list);
+
+void mc_list_iter_init(struct mc_iter *iter, struct mc_list const *list);
+bool mc_list_iter_next(struct mc_iter *iter);
 
 #endif

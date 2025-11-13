@@ -439,6 +439,32 @@ MC_TEST_IN_SUITE(list, boundary_conditions)
     mc_list_cleanup(&list);
 }
 
+MC_TEST_IN_SUITE(list, iter_functions)
+{
+    struct mc_list list;
+    mc_list_init(&list, int32_get_mc_type());
+
+    int values[] = {10, 20, 30, 40, 50};
+    for (size_t i = 0; i < 5; i++) {
+        mc_list_push_back(&list, &values[i]);
+    }
+
+    struct mc_iter iter;
+    mc_list_iter_init(&iter, &list);
+
+    int sum = 0;
+    size_t i = 0;
+    while (iter.next(&iter)) {
+        int const *val = iter.value;
+        MC_ASSERT_EQ_INT(*val, values[i]);
+        sum += *val;
+        i++;
+    }
+    MC_ASSERT(sum == 150);
+
+    mc_list_cleanup(&list);
+}
+
 int main(void)
 {
 #if !MC_COMPILER_SUPPORTS_ATTRIBUTE
@@ -460,6 +486,7 @@ int main(void)
     register_test_list_test_struct_basic_operations();
     register_test_list_test_object_basic_operations();
     register_test_list_boundary_conditions();
+    register_test_list_iter_functions();
 #endif
     return mc_run_all_tests();
 }

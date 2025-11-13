@@ -23,7 +23,6 @@ struct mc_test_suite {
 MC_DECLARE_EXTERNAL_TYPE(mc_test_entry);
 MC_DECLARE_EXTERNAL_TYPE(mc_test_suite);
 
-void mc_test_init(void);
 int mc_run_all_tests(void);
 
 void mc_register_test(char const *suite_name, struct mc_test_entry *entry);

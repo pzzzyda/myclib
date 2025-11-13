@@ -19,8 +19,6 @@ struct mc_test_state {
     struct mc_array failed_tests;
     size_t num_of_suites_run;
     size_t num_of_tests_run;
-    bool initialized;
-    bool global_suite_registered;
     bool current_test_failed;
     bool color_output_enabled;
 };
@@ -76,8 +74,6 @@ static void mc_test_state_init(struct mc_test_state *state)
     mc_array_init(&state->failed_tests, &mc_test_entry_mc_type);
     state->num_of_suites_run = 0;
     state->num_of_tests_run = 0;
-    state->initialized = true;
-    state->global_suite_registered = false;
     state->current_test_failed = false;
     state->color_output_enabled = true;
 }
@@ -243,14 +239,13 @@ static void mc_run_suite_cb(void const *key, void *value, void *user_data)
 
 static void mc_test_cleanup(void)
 {
-    if (!test_state.initialized)
-        return;
     mc_test_state_cleanup(&test_state);
 }
 
-void mc_test_init(void)
+static void mc_test_init(void)
 {
-    if (test_state.initialized)
+    static bool initialized = false;
+    if (initialized)
         return;
 
     mc_test_state_init(&test_state);
@@ -259,12 +254,13 @@ void mc_test_init(void)
     struct mc_test_suite suite;
     mc_test_suite_init(&suite, "global");
     mc_map_insert(&test_state.suites, &suite.name, &suite);
+
+    initialized = true;
 }
 
 int mc_run_all_tests(void)
 {
-    if (!test_state.initialized)
-        mc_test_init();
+    mc_test_init();
 
     mc_map_for_each(&test_state.suites, mc_run_suite_cb, &test_state);
 
@@ -293,8 +289,7 @@ void mc_register_test(char const *suite_name, struct mc_test_entry *entry)
     assert(suite_name);
     assert(entry);
 
-    if (!test_state.initialized)
-        mc_test_init();
+    mc_test_init();
 
     mc_test_state_register_test(&test_state, suite_name, entry);
 }
@@ -303,8 +298,7 @@ void mc_register_suite(struct mc_test_suite *suite)
 {
     assert(suite);
 
-    if (!test_state.initialized)
-        mc_test_init();
+    mc_test_init();
 
     mc_test_state_register_suite(&test_state, suite);
 }
@@ -313,8 +307,7 @@ void mc_set_test_suite_setup(char const *suite_name, void (*setup)(void))
 {
     assert(suite_name);
 
-    if (!test_state.initialized)
-        mc_test_init();
+    mc_test_init();
 
     struct mc_test_suite *suite =
         mc_test_state_find_suite(&test_state, suite_name);
@@ -331,8 +324,7 @@ void mc_set_test_suite_teardown(char const *suite_name, void (*teardown)(void))
 {
     assert(suite_name);
 
-    if (!test_state.initialized)
-        mc_test_init();
+    mc_test_init();
 
     struct mc_test_suite *suite =
         mc_test_state_find_suite(&test_state, suite_name);
@@ -350,6 +342,7 @@ void mc_assert_fail(char const *file, int line, char const *expr,
 {
     assert(file);
     assert(expr);
+    mc_test_init();
     va_list args;
     va_start(args, fmt);
     fprintf(stderr, "%s:%d: assertion `%s` failed: ", file, line, expr);
@@ -361,9 +354,7 @@ void mc_assert_fail(char const *file, int line, char const *expr,
 
 void mc_set_test_output_color(bool enable)
 {
-    if (!test_state.initialized)
-        mc_test_init();
-
+    mc_test_init();
     test_state.color_output_enabled = enable;
 }
 

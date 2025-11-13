@@ -37,4 +37,5 @@ if (BUILD_TESTS)
 
     mc_add_test(array_test tests/array_test.c)
     mc_add_test(map_test tests/map_test.c)
+    mc_add_test(string_test tests/string_test.c)
 endif ()

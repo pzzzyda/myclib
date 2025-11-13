@@ -153,6 +153,23 @@ void mc_test_suite_move(void *dst, void *src);
 #define MC_ASSERT_LT_SIZE(a, b) MC_ASSERT_CMP_SIZE(a, <, b)
 #define MC_ASSERT_LE_SIZE(a, b) MC_ASSERT_CMP_SIZE(a, <=, b)
 
+#define MC_ASSERT_CMP_PTR(a, cmp, b)                                           \
+    do {                                                                       \
+        void *a_ = (a);                                                        \
+        void *b_ = (b);                                                        \
+        if (!(a_ cmp b_)) {                                                    \
+            mc_assert_fail(__FILE__, __LINE__, #a " " #cmp " " #b,             \
+                           "\nleft: %p\nright: %p", a_, b_);                   \
+            return;                                                            \
+        }                                                                      \
+    } while (0)
+#define MC_ASSERT_EQ_PTR(a, b) MC_ASSERT_CMP_PTR(a, ==, b)
+#define MC_ASSERT_NE_PTR(a, b) MC_ASSERT_CMP_PTR(a, !=, b)
+#define MC_ASSERT_GT_PTR(a, b) MC_ASSERT_CMP_PTR(a, >, b)
+#define MC_ASSERT_GE_PTR(a, b) MC_ASSERT_CMP_PTR(a, >=, b)
+#define MC_ASSERT_LT_PTR(a, b) MC_ASSERT_CMP_PTR(a, <, b)
+#define MC_ASSERT_LE_PTR(a, b) MC_ASSERT_CMP_PTR(a, <=, b)
+
 #define MC_ASSERT_CMP_STR(a, cmp, b)                                           \
     do {                                                                       \
         char const *a_ = (a);                                                  \

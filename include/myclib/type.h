@@ -105,6 +105,19 @@ struct mc_type {
                             type_name##_copy, compare_func, equal_func,        \
                             hash_func)
 
+MC_DECLARE_TYPE(char);
+MC_DECLARE_TYPE(short);
+MC_DECLARE_TYPE(int);
+MC_DECLARE_TYPE(long);
+MC_DECLARE_TYPE(llong);
+MC_DECLARE_TYPE(uchar);
+MC_DECLARE_TYPE(ushort);
+MC_DECLARE_TYPE(uint);
+MC_DECLARE_TYPE(ulong);
+MC_DECLARE_TYPE(ullong);
+MC_DECLARE_TYPE(float);
+MC_DECLARE_TYPE(double);
+MC_DECLARE_TYPE(ldouble);
 MC_DECLARE_TYPE(int8);
 MC_DECLARE_TYPE(int16);
 MC_DECLARE_TYPE(int32);
@@ -113,6 +126,7 @@ MC_DECLARE_TYPE(uint8);
 MC_DECLARE_TYPE(uint16);
 MC_DECLARE_TYPE(uint32);
 MC_DECLARE_TYPE(uint64);
+MC_DECLARE_TYPE(size);
 MC_DECLARE_TYPE(str);
 
 mc_cleanup_func mc_type_get_cleanup_forced(char const *caller,

@@ -88,48 +88,87 @@ void mc_test_suite_move(void *dst, void *src);
         }                                                                      \
     } while (0)
 
-#define MC_ASSERT_EQ_INT(a, b)                                                 \
+#define MC_ASSERT_TRUE(expr)                                                   \
+    do {                                                                       \
+        if (!(expr)) {                                                         \
+            mc_assert_fail(__FILE__, __LINE__, #expr, "condition is false");   \
+            return;                                                            \
+        }                                                                      \
+    } while (0)
+
+#define MC_ASSERT_FALSE(expr)                                                  \
+    do {                                                                       \
+        if ((expr)) {                                                          \
+            mc_assert_fail(__FILE__, __LINE__, #expr, "condition is true");    \
+            return;                                                            \
+        }                                                                      \
+    } while (0)
+
+#define MC_ASSERT_NULL(ptr)                                                    \
+    do {                                                                       \
+        if ((ptr) != NULL) {                                                   \
+            mc_assert_fail(__FILE__, __LINE__, #ptr, "pointer is not null");   \
+            return;                                                            \
+        }                                                                      \
+    } while (0)
+
+#define MC_ASSERT_NOT_NULL(ptr)                                                \
+    do {                                                                       \
+        if ((ptr) == NULL) {                                                   \
+            mc_assert_fail(__FILE__, __LINE__, #ptr, "pointer is null");       \
+            return;                                                            \
+        }                                                                      \
+    } while (0)
+
+#define MC_ASSERT_CMP_INT(a, cmp, b)                                           \
     do {                                                                       \
         int a_ = (a);                                                          \
         int b_ = (b);                                                          \
-        if (a_ != b_) {                                                        \
-            mc_assert_fail(__FILE__, __LINE__, #a " == " #b,                   \
+        if (!(a_ cmp b_)) {                                                    \
+            mc_assert_fail(__FILE__, __LINE__, #a " " #cmp " " #b,             \
                            "\nleft: %d\nright: %d", a_, b_);                   \
             return;                                                            \
         }                                                                      \
     } while (0)
+#define MC_ASSERT_EQ_INT(a, b) MC_ASSERT_CMP_INT(a, ==, b)
+#define MC_ASSERT_NE_INT(a, b) MC_ASSERT_CMP_INT(a, !=, b)
+#define MC_ASSERT_GT_INT(a, b) MC_ASSERT_CMP_INT(a, >, b)
+#define MC_ASSERT_GE_INT(a, b) MC_ASSERT_CMP_INT(a, >=, b)
+#define MC_ASSERT_LT_INT(a, b) MC_ASSERT_CMP_INT(a, <, b)
+#define MC_ASSERT_LE_INT(a, b) MC_ASSERT_CMP_INT(a, <=, b)
 
-#define MC_ASSERT_NE_INT(a, b)                                                 \
+#define MC_ASSERT_CMP_SIZE(a, cmp, b)                                          \
     do {                                                                       \
-        int a_ = (a);                                                          \
-        int b_ = (b);                                                          \
-        if (a_ == b_) {                                                        \
-            mc_assert_fail(__FILE__, __LINE__, #a " != " #b,                   \
-                           "\nleft: %d\nright: %d", a_, b_);                   \
+        size_t a_ = (a);                                                       \
+        size_t b_ = (b);                                                       \
+        if (!(a_ cmp b_)) {                                                    \
+            mc_assert_fail(__FILE__, __LINE__, #a " " #cmp " " #b,             \
+                           "\nleft: %zu\nright: %zu", a_, b_);                 \
             return;                                                            \
         }                                                                      \
     } while (0)
+#define MC_ASSERT_EQ_SIZE(a, b) MC_ASSERT_CMP_SIZE(a, ==, b)
+#define MC_ASSERT_NE_SIZE(a, b) MC_ASSERT_CMP_SIZE(a, !=, b)
+#define MC_ASSERT_GT_SIZE(a, b) MC_ASSERT_CMP_SIZE(a, >, b)
+#define MC_ASSERT_GE_SIZE(a, b) MC_ASSERT_CMP_SIZE(a, >=, b)
+#define MC_ASSERT_LT_SIZE(a, b) MC_ASSERT_CMP_SIZE(a, <, b)
+#define MC_ASSERT_LE_SIZE(a, b) MC_ASSERT_CMP_SIZE(a, <=, b)
 
-#define MC_ASSERT_EQ_STR(a, b)                                                 \
+#define MC_ASSERT_CMP_STR(a, cmp, b)                                           \
     do {                                                                       \
         char const *a_ = (a);                                                  \
         char const *b_ = (b);                                                  \
-        if (strcmp(a_, b_) != 0) {                                             \
-            mc_assert_fail(__FILE__, __LINE__, #a " == " #b,                   \
+        if (!(strcmp(a_, b_) cmp 0)) {                                         \
+            mc_assert_fail(__FILE__, __LINE__, #a " " #cmp " " #b,             \
                            "\nleft: %s\nright: %s", a_, b_);                   \
             return;                                                            \
         }                                                                      \
     } while (0)
-
-#define MC_ASSERT_NE_STR(a, b)                                                 \
-    do {                                                                       \
-        char const *a_ = (a);                                                  \
-        char const *b_ = (b);                                                  \
-        if (strcmp(a_, b_) == 0) {                                             \
-            mc_assert_fail(__FILE__, __LINE__, #a " != " #b,                   \
-                           "\nleft: %s\nright: %s", a_, b_);                   \
-            return;                                                            \
-        }                                                                      \
-    } while (0)
+#define MC_ASSERT_EQ_STR(a, b) MC_ASSERT_CMP_STR(a, ==, b)
+#define MC_ASSERT_NE_STR(a, b) MC_ASSERT_CMP_STR(a, !=, b)
+#define MC_ASSERT_GT_STR(a, b) MC_ASSERT_CMP_STR(a, >, b)
+#define MC_ASSERT_GE_STR(a, b) MC_ASSERT_CMP_STR(a, >=, b)
+#define MC_ASSERT_LT_STR(a, b) MC_ASSERT_CMP_STR(a, <, b)
+#define MC_ASSERT_LE_STR(a, b) MC_ASSERT_CMP_STR(a, <=, b)
 
 #endif

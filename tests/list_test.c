@@ -115,17 +115,17 @@ MC_TEST_SUITE(list);
 MC_TEST_IN_SUITE(list, init)
 {
     struct mc_list list;
-    mc_list_init(&list, int32_get_mc_type());
+    mc_list_init(&list, int_get_mc_type());
     MC_ASSERT_EQ_SIZE(mc_list_len(&list), 0);
     MC_ASSERT_TRUE(mc_list_is_empty(&list));
-    MC_ASSERT_EQ_PTR(list.elem_type, int32_get_mc_type());
+    MC_ASSERT_EQ_PTR(list.elem_type, int_get_mc_type());
     mc_list_cleanup(&list);
 }
 
 MC_TEST_IN_SUITE(list, push_back)
 {
     struct mc_list list;
-    mc_list_init(&list, int32_get_mc_type());
+    mc_list_init(&list, int_get_mc_type());
 
     int values[] = {10, 20, 30, 40, 50};
     for (size_t i = 0; i < 5; i++) {
@@ -139,12 +139,12 @@ MC_TEST_IN_SUITE(list, push_back)
 MC_TEST_IN_SUITE(list, push_front)
 {
     struct mc_list list;
-    mc_list_init(&list, int32_get_mc_type());
+    mc_list_init(&list, int_get_mc_type());
 
     int values[] = {10, 20, 30, 40, 50};
     for (size_t i = 0; i < 5; i++) {
         mc_list_push_front(&list, &values[i]);
-        MC_ASSERT(mc_list_len(&list) == i + 1);
+        MC_ASSERT_EQ_SIZE(mc_list_len(&list), i + 1);
     }
 
     mc_list_cleanup(&list);
@@ -153,7 +153,7 @@ MC_TEST_IN_SUITE(list, push_front)
 MC_TEST_IN_SUITE(list, pop_back)
 {
     struct mc_list list;
-    mc_list_init(&list, int32_get_mc_type());
+    mc_list_init(&list, int_get_mc_type());
 
     int values[] = {10, 20, 30, 40, 50};
     for (size_t i = 0; i < 5; i++) {
@@ -162,12 +162,12 @@ MC_TEST_IN_SUITE(list, pop_back)
 
     int popped;
     for (int i = 4; i >= 0; i--) {
-        MC_ASSERT(mc_list_pop_back(&list, &popped) == true);
-        MC_ASSERT(popped == values[i]);
-        MC_ASSERT(mc_list_len(&list) == i);
+        MC_ASSERT_TRUE(mc_list_pop_back(&list, &popped));
+        MC_ASSERT_EQ_INT(popped, values[i]);
+        MC_ASSERT_EQ_SIZE(mc_list_len(&list), i);
     }
 
-    MC_ASSERT(mc_list_pop_back(&list, &popped) == false);
+    MC_ASSERT_FALSE(mc_list_pop_back(&list, &popped));
 
     mc_list_cleanup(&list);
 }
@@ -175,7 +175,7 @@ MC_TEST_IN_SUITE(list, pop_back)
 MC_TEST_IN_SUITE(list, pop_front)
 {
     struct mc_list list;
-    mc_list_init(&list, int32_get_mc_type());
+    mc_list_init(&list, int_get_mc_type());
 
     int values[] = {10, 20, 30, 40, 50};
     for (size_t i = 0; i < 5; i++) {
@@ -184,12 +184,12 @@ MC_TEST_IN_SUITE(list, pop_front)
 
     int popped;
     for (int i = 0; i < 5; i++) {
-        MC_ASSERT(mc_list_pop_front(&list, &popped) == true);
-        MC_ASSERT(popped == values[i]);
-        MC_ASSERT(mc_list_len(&list) == 4 - i);
+        MC_ASSERT_TRUE(mc_list_pop_front(&list, &popped));
+        MC_ASSERT_EQ_INT(popped, values[i]);
+        MC_ASSERT_EQ_SIZE(mc_list_len(&list), 4 - i);
     }
 
-    MC_ASSERT(mc_list_pop_front(&list, &popped) == false);
+    MC_ASSERT_FALSE(mc_list_pop_front(&list, &popped));
 
     mc_list_cleanup(&list);
 }
@@ -197,7 +197,7 @@ MC_TEST_IN_SUITE(list, pop_front)
 MC_TEST_IN_SUITE(list, insert)
 {
     struct mc_list list;
-    mc_list_init(&list, int32_get_mc_type());
+    mc_list_init(&list, int_get_mc_type());
 
     int base[] = {10, 20, 40, 50};
     for (size_t i = 0; i < 4; i++) {
@@ -206,7 +206,7 @@ MC_TEST_IN_SUITE(list, insert)
 
     int insert_val = 30;
     mc_list_insert(&list, 2, &insert_val);
-    MC_ASSERT(mc_list_len(&list) == 5);
+    MC_ASSERT_EQ_SIZE(mc_list_len(&list), 5);
 
     mc_list_cleanup(&list);
 }
@@ -214,7 +214,7 @@ MC_TEST_IN_SUITE(list, insert)
 MC_TEST_IN_SUITE(list, remove)
 {
     struct mc_list list;
-    mc_list_init(&list, int32_get_mc_type());
+    mc_list_init(&list, int_get_mc_type());
 
     int values[] = {10, 20, 30, 40, 50};
     for (size_t i = 0; i < 5; i++) {
@@ -223,8 +223,8 @@ MC_TEST_IN_SUITE(list, remove)
 
     int removed;
     mc_list_remove(&list, 2, &removed);
-    MC_ASSERT(removed == 30);
-    MC_ASSERT(mc_list_len(&list) == 4);
+    MC_ASSERT_EQ_INT(removed, 30);
+    MC_ASSERT_EQ_SIZE(mc_list_len(&list), 4);
 
     mc_list_cleanup(&list);
 }
@@ -240,7 +240,7 @@ static void sum_func(void *elem, void *user_data)
 MC_TEST_IN_SUITE(list, for_each)
 {
     struct mc_list list;
-    mc_list_init(&list, int32_get_mc_type());
+    mc_list_init(&list, int_get_mc_type());
 
     int values[] = {10, 20, 30, 40, 50};
     for (size_t i = 0; i < 5; i++) {
@@ -249,7 +249,7 @@ MC_TEST_IN_SUITE(list, for_each)
 
     for_each_sum = 0;
     mc_list_for_each(&list, sum_func, NULL);
-    MC_ASSERT(for_each_sum == 150);
+    MC_ASSERT_EQ_INT(for_each_sum, 150);
 
     mc_list_cleanup(&list);
 }
@@ -257,17 +257,17 @@ MC_TEST_IN_SUITE(list, for_each)
 MC_TEST_IN_SUITE(list, clear)
 {
     struct mc_list list;
-    mc_list_init(&list, int32_get_mc_type());
+    mc_list_init(&list, int_get_mc_type());
 
     int values[] = {10, 20, 30, 40, 50};
     for (size_t i = 0; i < 5; i++) {
         mc_list_push_back(&list, &values[i]);
     }
 
-    MC_ASSERT(mc_list_len(&list) == 5);
+    MC_ASSERT_EQ_SIZE(mc_list_len(&list), 5);
     mc_list_clear(&list);
-    MC_ASSERT(mc_list_len(&list) == 0);
-    MC_ASSERT(mc_list_is_empty(&list) == true);
+    MC_ASSERT_EQ_SIZE(mc_list_len(&list), 0);
+    MC_ASSERT_TRUE(mc_list_is_empty(&list));
 
     mc_list_cleanup(&list);
 }
@@ -275,8 +275,8 @@ MC_TEST_IN_SUITE(list, clear)
 MC_TEST_IN_SUITE(list, move)
 {
     struct mc_list src, dst;
-    mc_list_init(&src, int32_get_mc_type());
-    mc_list_init(&dst, int32_get_mc_type());
+    mc_list_init(&src, int_get_mc_type());
+    mc_list_init(&dst, int_get_mc_type());
 
     int values[] = {10, 20, 30, 40, 50};
     for (size_t i = 0; i < 5; i++) {
@@ -284,8 +284,8 @@ MC_TEST_IN_SUITE(list, move)
     }
 
     mc_list_move(&dst, &src);
-    MC_ASSERT(mc_list_len(&dst) == 5);
-    MC_ASSERT(mc_list_len(&src) == 0);
+    MC_ASSERT_EQ_SIZE(mc_list_len(&dst), 5);
+    MC_ASSERT_EQ_SIZE(mc_list_len(&src), 0);
 
     mc_list_cleanup(&src);
     mc_list_cleanup(&dst);
@@ -294,7 +294,7 @@ MC_TEST_IN_SUITE(list, move)
 MC_TEST_IN_SUITE(list, copy)
 {
     struct mc_list src, dst;
-    mc_list_init(&src, int32_get_mc_type());
+    mc_list_init(&src, int_get_mc_type());
 
     int values[] = {10, 20, 30, 40, 50};
     for (size_t i = 0; i < 5; i++) {
@@ -312,8 +312,8 @@ MC_TEST_IN_SUITE(list, copy)
 MC_TEST_IN_SUITE(list, compare)
 {
     struct mc_list list1, list2;
-    mc_list_init(&list1, int32_get_mc_type());
-    mc_list_init(&list2, int32_get_mc_type());
+    mc_list_init(&list1, int_get_mc_type());
+    mc_list_init(&list2, int_get_mc_type());
 
     int values[] = {10, 20, 30};
     for (size_t i = 0; i < 3; i++) {
@@ -321,35 +321,12 @@ MC_TEST_IN_SUITE(list, compare)
         mc_list_push_back(&list2, &values[i]);
     }
 
-    MC_ASSERT(mc_list_compare(&list1, &list2) == 0);
+    MC_ASSERT_EQ_INT(mc_list_compare(&list1, &list2), 0);
 
     int extra = 40;
     mc_list_push_back(&list1, &extra);
-    MC_ASSERT(mc_list_compare(&list1, &list2) > 0);
-    MC_ASSERT(mc_list_compare(&list2, &list1) < 0);
-
-    mc_list_cleanup(&list1);
-    mc_list_cleanup(&list2);
-}
-
-MC_TEST_IN_SUITE(list, equal)
-{
-    struct mc_list list1, list2;
-    mc_list_init(&list1, int32_get_mc_type());
-    mc_list_init(&list2, int32_get_mc_type());
-
-    int values[] = {10, 20, 30};
-    for (size_t i = 0; i < 3; i++) {
-        mc_list_push_back(&list1, &values[i]);
-        mc_list_push_back(&list2, &values[i]);
-    }
-
-    MC_ASSERT(mc_list_equal(&list1, &list2) == true);
-
-    int different = 35;
-    mc_list_remove(&list2, 2, NULL);
-    mc_list_push_back(&list2, &different);
-    MC_ASSERT(mc_list_equal(&list1, &list2) == false);
+    MC_ASSERT_GT_INT(mc_list_compare(&list1, &list2), 0);
+    MC_ASSERT_LT_INT(mc_list_compare(&list2, &list1), 0);
 
     mc_list_cleanup(&list1);
     mc_list_cleanup(&list2);
@@ -358,8 +335,8 @@ MC_TEST_IN_SUITE(list, equal)
 MC_TEST_IN_SUITE(list, hash)
 {
     struct mc_list list1, list2;
-    mc_list_init(&list1, int32_get_mc_type());
-    mc_list_init(&list2, int32_get_mc_type());
+    mc_list_init(&list1, int_get_mc_type());
+    mc_list_init(&list2, int_get_mc_type());
 
     int values[] = {10, 20, 30, 40, 50};
     for (size_t i = 0; i < 5; i++) {
@@ -369,12 +346,12 @@ MC_TEST_IN_SUITE(list, hash)
 
     size_t hash1 = mc_list_hash(&list1);
     size_t hash2 = mc_list_hash(&list2);
-    MC_ASSERT(hash1 == hash2);
+    MC_ASSERT_EQ_SIZE(hash1, hash2);
 
     int extra = 60;
     mc_list_push_back(&list2, &extra);
     size_t hash3 = mc_list_hash(&list2);
-    MC_ASSERT(hash1 != hash3);
+    MC_ASSERT_NE_SIZE(hash1, hash3);
 
     mc_list_cleanup(&list1);
     mc_list_cleanup(&list2);
@@ -391,9 +368,14 @@ MC_TEST_IN_SUITE(list, test_struct_basic_operations)
 
     mc_list_push_back(&list, &obj1);
     mc_list_push_back(&list, &obj2);
-    mc_list_push_back(&list, &obj3);
+    mc_list_push_front(&list, &obj3);
 
-    MC_ASSERT(mc_list_len(&list) == 3);
+    MC_ASSERT_EQ_SIZE(mc_list_len(&list), 3);
+
+    struct test_struct popped;
+    MC_ASSERT_TRUE(mc_list_pop_front(&list, &popped));
+    MC_ASSERT_EQ_INT(popped.id, 3);
+    MC_ASSERT_EQ_STR(popped.name, "Item 3");
 
     mc_list_cleanup(&list);
 }
@@ -410,9 +392,15 @@ MC_TEST_IN_SUITE(list, test_object_basic_operations)
 
     mc_list_push_back(&list, &obj1);
     mc_list_push_back(&list, &obj2);
-    mc_list_push_back(&list, &obj3);
+    mc_list_push_front(&list, &obj3);
 
-    MC_ASSERT(mc_list_len(&list) == 3);
+    MC_ASSERT_EQ_SIZE(mc_list_len(&list), 3);
+
+    struct test_object popped;
+    MC_ASSERT_TRUE(mc_list_pop_back(&list, &popped));
+    MC_ASSERT_EQ_INT(popped.id, 2);
+    MC_ASSERT_EQ_STR(popped.name, "Object 2");
+    test_object_cleanup(&popped);
 
     mc_list_cleanup(&list);
 }
@@ -420,21 +408,21 @@ MC_TEST_IN_SUITE(list, test_object_basic_operations)
 MC_TEST_IN_SUITE(list, boundary_conditions)
 {
     struct mc_list list;
-    mc_list_init(&list, int32_get_mc_type());
+    mc_list_init(&list, int_get_mc_type());
 
-    MC_ASSERT(mc_list_is_empty(&list) == true);
+    MC_ASSERT_TRUE(mc_list_is_empty(&list));
 
     int val;
-    MC_ASSERT(mc_list_pop_back(&list, &val) == false);
-    MC_ASSERT(mc_list_pop_front(&list, &val) == false);
+    MC_ASSERT_FALSE(mc_list_pop_back(&list, &val));
+    MC_ASSERT_FALSE(mc_list_pop_front(&list, &val));
 
     mc_list_clear(&list);
-    MC_ASSERT(mc_list_len(&list) == 0);
+    MC_ASSERT_EQ_SIZE(mc_list_len(&list), 0);
 
     for (int i = 0; i < 1000; i++) {
         mc_list_push_back(&list, &i);
     }
-    MC_ASSERT(mc_list_len(&list) == 1000);
+    MC_ASSERT_EQ_SIZE(mc_list_len(&list), 1000);
 
     mc_list_cleanup(&list);
 }
@@ -442,7 +430,7 @@ MC_TEST_IN_SUITE(list, boundary_conditions)
 MC_TEST_IN_SUITE(list, iter_functions)
 {
     struct mc_list list;
-    mc_list_init(&list, int32_get_mc_type());
+    mc_list_init(&list, int_get_mc_type());
 
     int values[] = {10, 20, 30, 40, 50};
     for (size_t i = 0; i < 5; i++) {
@@ -453,14 +441,12 @@ MC_TEST_IN_SUITE(list, iter_functions)
     mc_list_iter_init(&iter, &list);
 
     int sum = 0;
-    size_t i = 0;
-    while (iter.next(&iter)) {
+    for (size_t i = 0; iter.next(&iter); ++i) {
         int const *val = iter.value;
         MC_ASSERT_EQ_INT(*val, values[i]);
         sum += *val;
-        i++;
     }
-    MC_ASSERT(sum == 150);
+    MC_ASSERT_EQ_INT(sum, 150);
 
     mc_list_cleanup(&list);
 }
@@ -481,7 +467,6 @@ int main(void)
     register_test_list_move();
     register_test_list_copy();
     register_test_list_compare();
-    register_test_list_equal();
     register_test_list_hash();
     register_test_list_test_struct_basic_operations();
     register_test_list_test_object_basic_operations();

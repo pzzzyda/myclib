@@ -7,10 +7,10 @@ MC_TEST_IN_SUITE(map, init)
 {
     struct mc_map map;
     mc_map_init(&map, str_get_mc_type(), int_get_mc_type());
-    MC_ASSERT(mc_map_len(&map) == 0);
-    MC_ASSERT(mc_map_capacity(&map) == 0);
-    MC_ASSERT(map.table.key_type == str_get_mc_type());
-    MC_ASSERT(map.table.value_type == int_get_mc_type());
+    MC_ASSERT_EQ_SIZE(mc_map_len(&map), 0);
+    MC_ASSERT_EQ_SIZE(mc_map_capacity(&map), 0);
+    MC_ASSERT_EQ_PTR(map.table.key_type, str_get_mc_type());
+    MC_ASSERT_EQ_PTR(map.table.value_type, int_get_mc_type());
     mc_map_cleanup(&map);
 }
 
@@ -29,8 +29,8 @@ MC_TEST_IN_SUITE(map, basic_properties)
 
     for (size_t i = 0; i < sizeof(pairs) / sizeof(pairs[0]); ++i) {
         int *value = mc_map_get(&map, &pairs[i].key);
-        MC_ASSERT(value != NULL);
-        MC_ASSERT(*value == pairs[i].value);
+        MC_ASSERT_NOT_NULL(value);
+        MC_ASSERT_EQ_INT(*value, pairs[i].value);
     }
 
     mc_map_cleanup(&map);
@@ -47,19 +47,19 @@ MC_TEST_IN_SUITE(map, insert_overwrite)
 
     /* Insert first value */
     mc_map_insert(&map, &key, &value1);
-    MC_ASSERT(mc_map_len(&map) == 1);
+    MC_ASSERT_EQ_SIZE(mc_map_len(&map), 1);
 
     int *retrieved = mc_map_get(&map, &key);
-    MC_ASSERT(retrieved != NULL);
-    MC_ASSERT(*retrieved == value1);
+    MC_ASSERT_NOT_NULL(retrieved);
+    MC_ASSERT_EQ_INT(*retrieved, value1);
 
     /* Overwrite with second value */
     mc_map_insert(&map, &key, &value2);
-    MC_ASSERT(mc_map_len(&map) == 1);
+    MC_ASSERT_EQ_SIZE(mc_map_len(&map), 1);
 
     retrieved = mc_map_get(&map, &key);
-    MC_ASSERT(retrieved != NULL);
-    MC_ASSERT(*retrieved == value2);
+    MC_ASSERT_NOT_NULL(retrieved);
+    MC_ASSERT_EQ_INT(*retrieved, value2);
 
     mc_map_cleanup(&map);
 }
@@ -80,26 +80,27 @@ MC_TEST_IN_SUITE(map, remove)
         mc_map_insert(&map, &pairs[i].key, &pairs[i].value);
     }
 
-    MC_ASSERT(mc_map_len(&map) == 3);
+    MC_ASSERT_EQ_SIZE(mc_map_len(&map), 3);
 
     /* Test removing non-existent key */
     char const *out_key;
     int out_value;
-    MC_ASSERT(!mc_map_remove(&map, &non_existent_key, &out_key, &out_value));
-    MC_ASSERT(mc_map_len(&map) == 3);
+    MC_ASSERT_FALSE(
+        mc_map_remove(&map, &non_existent_key, &out_key, &out_value));
+    MC_ASSERT_EQ_SIZE(mc_map_len(&map), 3);
 
     /* Test removing existing key */
-    MC_ASSERT(mc_map_remove(&map, &pairs[1].key, &out_key, &out_value));
-    MC_ASSERT(mc_map_len(&map) == 2);
-    MC_ASSERT(strcmp(out_key, pairs[1].key) == 0);
-    MC_ASSERT(out_value == pairs[1].value);
+    MC_ASSERT_TRUE(mc_map_remove(&map, &pairs[1].key, &out_key, &out_value));
+    MC_ASSERT_EQ_SIZE(mc_map_len(&map), 2);
+    MC_ASSERT_EQ_STR(out_key, pairs[1].key);
+    MC_ASSERT_EQ_INT(out_value, pairs[1].value);
 
     /* Verify the key is no longer present */
-    MC_ASSERT(mc_map_get(&map, &pairs[1].key) == NULL);
+    MC_ASSERT_NULL(mc_map_get(&map, &pairs[1].key));
 
     /* Verify other keys are still present */
-    MC_ASSERT(mc_map_get(&map, &pairs[0].key) != NULL);
-    MC_ASSERT(mc_map_get(&map, &pairs[2].key) != NULL);
+    MC_ASSERT_NOT_NULL(mc_map_get(&map, &pairs[0].key));
+    MC_ASSERT_NOT_NULL(mc_map_get(&map, &pairs[2].key));
 
     mc_map_cleanup(&map);
 }
@@ -116,7 +117,7 @@ MC_TEST_IN_SUITE(map, contains_key)
     mc_map_init(&map, str_get_mc_type(), int_get_mc_type());
 
     /* Test on empty map */
-    MC_ASSERT(!mc_map_contains_key(&map, &non_existent_key));
+    MC_ASSERT_FALSE(mc_map_contains_key(&map, &non_existent_key));
 
     /* Insert test data */
     for (size_t i = 0; i < sizeof(pairs) / sizeof(pairs[0]); ++i) {
@@ -124,11 +125,11 @@ MC_TEST_IN_SUITE(map, contains_key)
     }
 
     /* Test existing keys */
-    MC_ASSERT(mc_map_contains_key(&map, &pairs[0].key));
-    MC_ASSERT(mc_map_contains_key(&map, &pairs[1].key));
+    MC_ASSERT_TRUE(mc_map_contains_key(&map, &pairs[0].key));
+    MC_ASSERT_TRUE(mc_map_contains_key(&map, &pairs[1].key));
 
     /* Test non-existent key */
-    MC_ASSERT(!mc_map_contains_key(&map, &non_existent_key));
+    MC_ASSERT_FALSE(mc_map_contains_key(&map, &non_existent_key));
 
     mc_map_cleanup(&map);
 }
@@ -148,17 +149,17 @@ MC_TEST_IN_SUITE(map, clear)
         mc_map_insert(&map, &pairs[i].key, &pairs[i].value);
     }
 
-    MC_ASSERT(mc_map_len(&map) == 3);
+    MC_ASSERT_EQ_SIZE(mc_map_len(&map), 3);
 
     /* Clear the map */
     mc_map_clear(&map);
 
-    MC_ASSERT(mc_map_len(&map) == 0);
-    MC_ASSERT(mc_map_is_empty(&map));
+    MC_ASSERT_EQ_SIZE(mc_map_len(&map), 0);
+    MC_ASSERT_TRUE(mc_map_is_empty(&map));
 
     /* Verify all keys are gone */
     for (size_t i = 0; i < sizeof(pairs) / sizeof(pairs[0]); ++i) {
-        MC_ASSERT(mc_map_get(&map, &pairs[i].key) == NULL);
+        MC_ASSERT_NULL(mc_map_get(&map, &pairs[i].key));
     }
 
     mc_map_cleanup(&map);
@@ -171,13 +172,13 @@ MC_TEST_IN_SUITE(map, reserve)
     mc_map_init(&map, str_get_mc_type(), int_get_mc_type());
 
     /* Test initial state */
-    MC_ASSERT(mc_map_capacity(&map) == 0);
+    MC_ASSERT_EQ_SIZE(mc_map_capacity(&map), 0);
 
     /* Reserve capacity */
     mc_map_reserve(&map, 10);
 
     /* Verify capacity is at least what we requested */
-    MC_ASSERT(mc_map_capacity(&map) >= 10);
+    MC_ASSERT_GE_SIZE(mc_map_capacity(&map), 10);
 
     /* Verify we can insert up to the reserved capacity */
     char const *keys[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
@@ -187,13 +188,13 @@ MC_TEST_IN_SUITE(map, reserve)
         mc_map_insert(&map, &keys[i], &values[i]);
     }
 
-    MC_ASSERT(mc_map_len(&map) == 10);
+    MC_ASSERT_EQ_SIZE(mc_map_len(&map), 10);
 
     /* Verify all values are correctly stored */
     for (size_t i = 0; i < sizeof(keys) / sizeof(keys[0]); ++i) {
         int *value = mc_map_get(&map, &keys[i]);
-        MC_ASSERT(value != NULL);
-        MC_ASSERT(*value == values[i]);
+        MC_ASSERT_NOT_NULL(value);
+        MC_ASSERT_EQ_INT(*value, values[i]);
     }
 
     mc_map_cleanup(&map);
@@ -214,26 +215,26 @@ MC_TEST_IN_SUITE(map, shrink_to_fit)
     }
 
     size_t initial_capacity = mc_map_capacity(&map);
-    MC_ASSERT(initial_capacity >= 10);
+    MC_ASSERT_GE_SIZE(initial_capacity, 10);
 
     /* Remove most elements */
     for (size_t i = 1; i < sizeof(keys) / sizeof(keys[0]); ++i) {
         mc_map_remove(&map, &keys[i], NULL, NULL);
     }
 
-    MC_ASSERT(mc_map_len(&map) == 1);
+    MC_ASSERT_EQ_SIZE(mc_map_len(&map), 1);
 
     /* Shrink to fit */
     mc_map_shrink_to_fit(&map);
 
     /* Verify capacity is now smaller */
     size_t new_capacity = mc_map_capacity(&map);
-    MC_ASSERT(new_capacity < initial_capacity);
+    MC_ASSERT_LT_SIZE(new_capacity, initial_capacity);
 
     /* Verify the remaining element is still present */
     int *value = mc_map_get(&map, &keys[0]);
-    MC_ASSERT(value != NULL);
-    MC_ASSERT(*value == values[0]);
+    MC_ASSERT_NOT_NULL(value);
+    MC_ASSERT_EQ_INT(*value, values[0]);
 
     mc_map_cleanup(&map);
 }
@@ -273,8 +274,8 @@ MC_TEST_IN_SUITE(map, for_each)
     struct for_each_test_data data = {0, 0};
     mc_map_for_each(&map, for_each_callback, &data);
 
-    MC_ASSERT(data.count == 3);
-    MC_ASSERT(data.sum == 6); /* 1 + 2 + 3 = 6 */
+    MC_ASSERT_EQ_SIZE(data.count, 3);
+    MC_ASSERT_EQ_INT(data.sum, 6); /* 1 + 2 + 3 = 6 */
 
     mc_map_cleanup(&map);
 }
@@ -301,16 +302,16 @@ MC_TEST_IN_SUITE(map, move)
     mc_map_move(&dst_map, &src_map);
 
     /* Verify destination has the elements */
-    MC_ASSERT(mc_map_len(&dst_map) == 2);
+    MC_ASSERT_EQ_SIZE(mc_map_len(&dst_map), 2);
     for (size_t i = 0; i < sizeof(pairs) / sizeof(pairs[0]); ++i) {
         int *value = mc_map_get(&dst_map, &pairs[i].key);
-        MC_ASSERT(value != NULL);
-        MC_ASSERT(*value == pairs[i].value);
+        MC_ASSERT_NOT_NULL(value);
+        MC_ASSERT_EQ_INT(*value, pairs[i].value);
     }
 
     /* Verify source is empty */
-    MC_ASSERT(mc_map_len(&src_map) == 0);
-    MC_ASSERT(mc_map_capacity(&src_map) == 0);
+    MC_ASSERT_EQ_SIZE(mc_map_len(&src_map), 0);
+    MC_ASSERT_EQ_SIZE(mc_map_capacity(&src_map), 0);
 
     /* Cleanup both maps */
     mc_map_cleanup(&src_map);
@@ -339,15 +340,15 @@ MC_TEST_IN_SUITE(map, copy)
     mc_map_copy(&dst_map, &src_map);
 
     /* Verify destination has the same elements */
-    MC_ASSERT(mc_map_len(&dst_map) == mc_map_len(&src_map));
+    MC_ASSERT_EQ_SIZE(mc_map_len(&dst_map), mc_map_len(&src_map));
     for (size_t i = 0; i < sizeof(pairs) / sizeof(pairs[0]); ++i) {
         int *value = mc_map_get(&dst_map, &pairs[i].key);
-        MC_ASSERT(value != NULL);
-        MC_ASSERT(*value == pairs[i].value);
+        MC_ASSERT_NOT_NULL(value);
+        MC_ASSERT_EQ_INT(*value, pairs[i].value);
     }
 
     /* Verify source is unchanged */
-    MC_ASSERT(mc_map_len(&src_map) == 2);
+    MC_ASSERT_EQ_SIZE(mc_map_len(&src_map), 2);
 
     /* Cleanup both maps */
     mc_map_cleanup(&src_map);
@@ -363,19 +364,19 @@ MC_TEST_IN_SUITE(map, is_empty)
     mc_map_init(&map, str_get_mc_type(), int_get_mc_type());
 
     /* Test on empty map */
-    MC_ASSERT(mc_map_is_empty(&map));
+    MC_ASSERT_TRUE(mc_map_is_empty(&map));
 
     /* Insert an element */
     mc_map_insert(&map, &key, &value);
 
     /* Test on non-empty map */
-    MC_ASSERT(!mc_map_is_empty(&map));
+    MC_ASSERT_FALSE(mc_map_is_empty(&map));
 
     /* Remove the element */
     mc_map_remove(&map, &key, NULL, NULL);
 
     /* Test on empty map again */
-    MC_ASSERT(mc_map_is_empty(&map));
+    MC_ASSERT_TRUE(mc_map_is_empty(&map));
 
     mc_map_cleanup(&map);
 }
@@ -399,8 +400,8 @@ MC_TEST_IN_SUITE(map, iter)
     while (iter.next(&iter)) {
         char const *key = *(char const *const *)iter.key;
         int value = *(int *)iter.value;
-        MC_ASSERT(key != NULL);
-        MC_ASSERT(value != 0);
+        MC_ASSERT_NOT_NULL(key);
+        MC_ASSERT_NE_INT(value, 0);
         MC_ASSERT_LT_SIZE(count, sizeof(pairs) / sizeof(pairs[0]));
         bool found = false;
         for (size_t i = 0; i < sizeof(pairs) / sizeof(pairs[0]); ++i) {

@@ -353,23 +353,23 @@ MC_TEST_IN_SUITE(string, split)
     /* Test split by space */
     mc_string_from(&str, "Hello World Test");
     mc_string_split(&str, " ", &parts);
-    MC_ASSERT(mc_array_len(&parts) == 3);
+    MC_ASSERT_EQ_SIZE(mc_array_len(&parts), 3);
 
     struct mc_string *part1 = mc_array_get(&parts, 0);
     struct mc_string *part2 = mc_array_get(&parts, 1);
     struct mc_string *part3 = mc_array_get(&parts, 2);
 
-    MC_ASSERT(strcmp(mc_string_c_str(part1), "Hello") == 0);
-    MC_ASSERT(strcmp(mc_string_c_str(part2), "World") == 0);
-    MC_ASSERT(strcmp(mc_string_c_str(part3), "Test") == 0);
+    MC_ASSERT_EQ_STR(mc_string_c_str(part1), "Hello");
+    MC_ASSERT_EQ_STR(mc_string_c_str(part2), "World");
+    MC_ASSERT_EQ_STR(mc_string_c_str(part3), "Test");
 
     mc_array_cleanup(&parts);
 
     /* Test split at specific index */
     struct mc_string left, right;
     mc_string_split_at(&str, 5, &left, &right);
-    MC_ASSERT(strcmp(mc_string_c_str(&left), "Hello") == 0);
-    MC_ASSERT(strcmp(mc_string_c_str(&right), " World Test") == 0);
+    MC_ASSERT_EQ_STR(mc_string_c_str(&left), "Hello");
+    MC_ASSERT_EQ_STR(mc_string_c_str(&right), " World Test");
 
     mc_string_cleanup(&left);
     mc_string_cleanup(&right);
@@ -378,15 +378,15 @@ MC_TEST_IN_SUITE(string, split)
     mc_string_cleanup(&str);
     mc_string_from(&str, "Line 1\nLine 2\nLine 3");
     mc_string_lines(&str, &parts);
-    MC_ASSERT(mc_array_len(&parts) == 3);
+    MC_ASSERT_EQ_SIZE(mc_array_len(&parts), 3);
 
     part1 = mc_array_get(&parts, 0);
     part2 = mc_array_get(&parts, 1);
     part3 = mc_array_get(&parts, 2);
 
-    MC_ASSERT(strcmp(mc_string_c_str(part1), "Line 1") == 0);
-    MC_ASSERT(strcmp(mc_string_c_str(part2), "Line 2") == 0);
-    MC_ASSERT(strcmp(mc_string_c_str(part3), "Line 3") == 0);
+    MC_ASSERT_EQ_STR(mc_string_c_str(part1), "Line 1");
+    MC_ASSERT_EQ_STR(mc_string_c_str(part2), "Line 2");
+    MC_ASSERT_EQ_STR(mc_string_c_str(part3), "Line 3");
 
     mc_array_cleanup(&parts);
     mc_string_cleanup(&str);
@@ -410,14 +410,14 @@ MC_TEST_IN_SUITE(string, join)
     /* Test join with separator */
     struct mc_string joined;
     mc_string_join(&parts, ", ", &joined);
-    MC_ASSERT(strcmp(mc_string_c_str(&joined), "Hello, World, Test") == 0);
+    MC_ASSERT_EQ_STR(mc_string_c_str(&joined), "Hello, World, Test");
 
     /* Test join with empty array */
     struct mc_array empty_parts;
     mc_array_init(&empty_parts, mc_string_get_mc_type());
     struct mc_string empty_joined;
     mc_string_join(&empty_parts, ", ", &empty_joined);
-    MC_ASSERT(mc_string_len(&empty_joined) == 0);
+    MC_ASSERT_EQ_SIZE(mc_string_len(&empty_joined), 0);
 
     mc_string_cleanup(&joined);
     mc_string_cleanup(&empty_joined);

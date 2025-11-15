@@ -42,8 +42,8 @@ void mc_test_suite_move(void *dst, void *src);
 
 #define MC_TEST(test_name)                                                     \
     static void MC_JOIN_UNDERSCORE(test, test_name)(void);                     \
-    MC_ATTR_CONSTRUCTOR static void MC_JOIN_UNDERSCORE(register_test,          \
-                                                       test_name)(void)        \
+    MC_ATTRIBUTE(constructor)                                                  \
+    static void MC_JOIN_UNDERSCORE(register_test, test_name)(void)             \
     {                                                                          \
         struct mc_test_entry MC_JOIN_UNDERSCORE(test_entry, test_name) = {     \
             .name = "global::" #test_name,                                     \
@@ -55,8 +55,8 @@ void mc_test_suite_move(void *dst, void *src);
     static void MC_JOIN_UNDERSCORE(test, test_name)(void)
 
 #define MC_TEST_SUITE(suite_name)                                              \
-    MC_ATTR_CONSTRUCTOR static void MC_JOIN_UNDERSCORE(register_test_suite,    \
-                                                       suite_name)(void)       \
+    MC_ATTRIBUTE(constructor(101))                                             \
+    static void MC_JOIN_UNDERSCORE(register_test_suite, suite_name)(void)      \
     {                                                                          \
         struct mc_test_suite MC_JOIN_UNDERSCORE(test_suite, suite_name);       \
         mc_test_suite_init(&MC_JOIN_UNDERSCORE(test_suite, suite_name),        \
@@ -66,8 +66,8 @@ void mc_test_suite_move(void *dst, void *src);
 
 #define MC_TEST_IN_SUITE(suite_name, test_name)                                \
     static void MC_JOIN_UNDERSCORE(test, suite_name, test_name)(void);         \
-    MC_ATTR_CONSTRUCTOR static void MC_JOIN_UNDERSCORE(                        \
-        register_test, suite_name, test_name)(void)                            \
+    MC_ATTRIBUTE(constructor)                                                  \
+    static void MC_JOIN_UNDERSCORE(register_test, suite_name, test_name)(void) \
     {                                                                          \
         struct mc_test_entry MC_JOIN_UNDERSCORE(test_entry, suite_name,        \
                                                 test_name) = {                 \
@@ -90,7 +90,8 @@ void mc_test_suite_move(void *dst, void *src);
 #define MC_ASSERT_TRUE(expr)                                                   \
     do {                                                                       \
         if (!(expr)) {                                                         \
-            mc_assert_fail(__FILE__, __LINE__, #expr, "condition is false");   \
+            mc_assert_fail(__FILE__, __LINE__, #expr " == true",               \
+                           "condition is false");                              \
             return;                                                            \
         }                                                                      \
     } while (0)
@@ -98,7 +99,8 @@ void mc_test_suite_move(void *dst, void *src);
 #define MC_ASSERT_FALSE(expr)                                                  \
     do {                                                                       \
         if ((expr)) {                                                          \
-            mc_assert_fail(__FILE__, __LINE__, #expr, "condition is true");    \
+            mc_assert_fail(__FILE__, __LINE__, #expr " == false",              \
+                           "condition is true");                               \
             return;                                                            \
         }                                                                      \
     } while (0)
@@ -106,7 +108,8 @@ void mc_test_suite_move(void *dst, void *src);
 #define MC_ASSERT_NULL(ptr)                                                    \
     do {                                                                       \
         if ((ptr) != NULL) {                                                   \
-            mc_assert_fail(__FILE__, __LINE__, #ptr, "pointer is not null");   \
+            mc_assert_fail(__FILE__, __LINE__, #ptr " == NULL",                \
+                           "pointer is not null");                             \
             return;                                                            \
         }                                                                      \
     } while (0)
@@ -114,7 +117,8 @@ void mc_test_suite_move(void *dst, void *src);
 #define MC_ASSERT_NOT_NULL(ptr)                                                \
     do {                                                                       \
         if ((ptr) == NULL) {                                                   \
-            mc_assert_fail(__FILE__, __LINE__, #ptr, "pointer is null");       \
+            mc_assert_fail(__FILE__, __LINE__, #ptr " != NULL",                \
+                           "pointer is null");                                 \
             return;                                                            \
         }                                                                      \
     } while (0)

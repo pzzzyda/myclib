@@ -25,7 +25,6 @@ struct mc_test_state {
 
 static struct mc_test_state test_state;
 
-MC_ATTR_PRINTF(2, 3)
 static void mc_test_print_info(char const *type, char const *fmt, ...)
 {
     va_list args;
@@ -39,7 +38,6 @@ static void mc_test_print_info(char const *type, char const *fmt, ...)
     va_end(args);
 }
 
-MC_ATTR_PRINTF(2, 3)
 static void mc_test_print_error(char const *type, char const *fmt, ...)
 {
     va_list args;
@@ -54,7 +52,6 @@ static void mc_test_print_error(char const *type, char const *fmt, ...)
     va_end(args);
 }
 
-MC_ATTR_PRINTF(1, 2)
 static void mc_test_print_separator(char const *fmt, ...)
 {
     va_list args;

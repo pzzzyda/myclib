@@ -11,6 +11,7 @@ add_library(${PROJECT_NAME} STATIC
         src/array.c
         src/hash.c
         src/list.c
+        src/log.c
         src/map.c
         src/string.c
         src/test.c

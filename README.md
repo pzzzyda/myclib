@@ -10,28 +10,28 @@ myclib is designed to fill the gap between the minimal standard C library and mo
 
 ### Core Data Structures
 
-- **Array**: Dynamic array implementation with support for generic types, automatic resizing, and various operations
-- **List**: Doubly linked list with generic element support
-- **Map**: Hash table-based key-value map with generic key and value support
-- **String**: Dynamic string implementation with rich string manipulation functions
+-   **Array**: Dynamic array implementation with support for generic types, automatic resizing, and various operations
+-   **List**: Doubly linked list with generic element support
+-   **Map**: Hash table-based key-value map with generic key and value support
+-   **String**: Dynamic string implementation with rich string manipulation functions
 
 ### Utilities
 
-- **Type System**: Generic type metadata and operations framework
-- **Logging**: Flexible logging system with multiple levels and formatting options
-- **Time**: High-resolution time measurement utilities
-- **Iterators**: Unified iterator interface for all data structures
-- **Memory Management**: Aligned memory allocation functions
-- **Hash Functions**: Efficient hash implementations for various data types
-- **Attribute Support**: Cross-platform compiler attribute macros
-- **Testing Framework**: Lightweight unit testing utilities
+-   **Type System**: Generic type metadata and operations framework
+-   **Logging**: Flexible logging system with multiple levels and formatting options
+-   **Time**: High-resolution time measurement utilities
+-   **Iterators**: Unified iterator interface for all data structures
+-   **Memory Management**: Aligned memory allocation functions
+-   **Hash Functions**: Efficient hash implementations for various data types
+-   **Attribute Support**: Cross-platform compiler attribute macros
+-   **Testing Framework**: Lightweight unit testing utilities
 
 ## Getting Started
 
 ### Prerequisites
 
-- C11 compatible compiler (GCC, Clang, MSVC)
-- CMake 3.10 or later
+-   C11 compatible compiler (GCC, Clang, MSVC)
+-   CMake 3.10 or later
 
 ### Building the Library
 
@@ -74,18 +74,13 @@ gcc your_program.c -lmyclib -I/path/to/myclib/include -L/path/to/myclib/lib
 #include <myclib/type.h>
 #include <stdio.h>
 
-// Define a type for integers
-MC_DEFINE_POD_TYPE(mc_int, int, mc_int_compare, mc_int_equal, mc_int_hash);
-
 int main() {
     struct mc_array array;
-    mc_array_init(&array, mc_int_get_mc_type());
+    mc_array_init(&array, int_get_mc_type());
 
-    int value = 42;
-    mc_array_push(&array, &value);
+    mc_array_push(&array, &(int){42});
 
-    value = 100;
-    mc_array_push(&array, &value);
+    mc_array_push(&array, &(int){100});
 
     printf("Array length: %zu\n", mc_array_len(&array));
     printf("First element: %d\n", *(int *)mc_array_get_first(&array));
@@ -126,17 +121,18 @@ int main() {
 
 int main() {
     struct mc_map map;
-    mc_map_init(&map, mc_string_get_mc_type(), mc_int_get_mc_type());
+    mc_map_init(&map, mc_string_get_mc_type(), int_get_mc_type());
 
     struct mc_string key;
     mc_string_from(&key, "answer");
 
     int value = 42;
-    mc_map_insert(&map, &key, &value);
+    mc_map_insert(&map, &key, &value); /* The key has been moved here. */
 
-    void *result = mc_map_get(&map, &key);
+    mc_string_from(&key, "answer");
+    int *result = mc_map_get(&map, &key);
     if (result) {
-        printf("The answer is %d\n", *(int *)result);
+        printf("The answer is %d\n", *result);
     }
 
     mc_string_cleanup(&key);
@@ -167,86 +163,44 @@ int main() {
 }
 ```
 
-## API Reference
-
-### Array API
+### Using Testing Framework
 
 ```c
-// Initialization
-void mc_array_init(struct mc_array *array, struct mc_type const *elem_type);
-void mc_array_with_capacity(struct mc_array *array, struct mc_type const *elem_type, size_t capacity);
+#include <myclib/test.h>
 
-// Basic operations
-size_t mc_array_len(struct mc_array const *array);
-bool mc_array_is_empty(struct mc_array const *array);
-void *mc_array_get(struct mc_array const *array, size_t index);
+int add(int a, int b)
+{
+    return a + b;
+}
 
-// Modification
-void mc_array_push(struct mc_array *array, void *elem);
-bool mc_array_pop(struct mc_array *array, void *out_elem);
-void mc_array_insert(struct mc_array *array, size_t index, void *elem);
-void mc_array_remove(struct mc_array *array, size_t index, void *out_elem);
+int sub(int a, int b)
+{
+    return a - b;
+}
 
-// Cleanup
-void mc_array_cleanup(struct mc_array *array);
-```
+MC_TEST_SUITE(math)
 
-### String API
+MC_TEST_IN_SUITE(math, add)
+{
+    MC_ASSERT_EQ_INT(add(1, 1), 2);
+    MC_ASSERT_EQ_INT(add(-1, 1), 0);
+}
 
-```c
-// Initialization
-void mc_string_init(struct mc_string *str);
-void mc_string_from(struct mc_string *str, char const *s);
-void mc_string_format(struct mc_string *str, char const *fmt, ...);
+MC_TEST_IN_SUITE(math, sub)
+{
+    MC_ASSERT_EQ_INT(sub(1, 1), 0);
+    MC_ASSERT_EQ_INT(sub(-1, 1), -2);
+}
 
-// Basic operations
-size_t mc_string_len(struct mc_string const *str);
-bool mc_string_is_empty(struct mc_string const *str);
-char const *mc_string_c_str(struct mc_string *str);
-
-// Modification
-void mc_string_append(struct mc_string *str, char const *s);
-void mc_string_append_format(struct mc_string *str, char const *fmt, ...);
-void mc_string_insert(struct mc_string *str, size_t index, char const *s);
-
-// Cleanup
-void mc_string_cleanup(struct mc_string *str);
-```
-
-### Map API
-
-```c
-// Initialization
-void mc_map_init(struct mc_map *map, struct mc_type const *key_type, struct mc_type const *value_type);
-
-// Basic operations
-size_t mc_map_len(struct mc_map const *map);
-bool mc_map_is_empty(struct mc_map const *map);
-void *mc_map_get(struct mc_map const *map, void const *key);
-
-// Modification
-void mc_map_insert(struct mc_map *map, void *key, void *value);
-bool mc_map_remove(struct mc_map *map, void const *key, void *out_key, void *out_value);
-
-// Cleanup
-void mc_map_cleanup(struct mc_map *map);
-```
-
-### Logging API
-
-```c
-// Initialization
-struct mc_logger *mc_logger_new(struct mc_logger_config const *cfg);
-
-// Configuration
-void mc_logger_set_level(struct mc_logger *logger, enum mc_log_level level);
-void mc_logger_set_format(struct mc_logger *logger, int format_flags);
-
-// Logging
-void mc_logger_write(struct mc_logger *logger, enum mc_log_level level, char const *file, int line, char const *fmt, ...);
-
-// Cleanup
-void mc_logger_free(struct mc_logger *logger);
+int main(void)
+{
+#if !MC_COMPILER_SUPPORTS_ATTRIBUTE
+    register_test_suite_math();
+    register_test_math_add();
+    register_test_math_sub();
+#endif
+    return mc_run_all_tests();
+}
 ```
 
 ## Project Structure
@@ -322,14 +276,14 @@ Contributions are welcome! Please feel free to submit issues, feature requests, 
 
 ## TODO
 
-- Add more data structures (e.g., set, queue, stack)
-- Enhance string manipulation capabilities
-- Add more utility functions
-- Improve documentation
-- Add more examples
+-   Add more data structures (e.g., set, queue, stack)
+-   Enhance string manipulation capabilities
+-   Add more utility functions
+-   Improve documentation
+-   Add more examples
 
 ## Contact
 
-- Email: zhongyuan03@outlook.com
+-   Email: zhongyuan03@outlook.com
 
 For questions or feedback, please open an issue on the project repository.

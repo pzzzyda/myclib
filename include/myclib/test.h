@@ -27,6 +27,7 @@ int mc_run_all_tests(void);
 
 void mc_register_test(char const *suite_name, struct mc_test_entry *entry);
 void mc_register_suite(struct mc_test_suite *suite);
+void mc_try_register_empty_suite(char const *suite_name);
 
 void mc_set_test_suite_setup(char const *suite_name, void (*setup)(void));
 void mc_set_test_suite_teardown(char const *suite_name, void (*teardown)(void));
@@ -55,13 +56,10 @@ void mc_test_suite_move(void *dst, void *src);
     static void MC_JOIN_UNDERSCORE(test, test_name)(void)
 
 #define MC_TEST_SUITE(suite_name)                                              \
-    MC_ATTRIBUTE(constructor(101))                                             \
+    MC_ATTRIBUTE(constructor)                                                  \
     static void MC_JOIN_UNDERSCORE(register_test_suite, suite_name)(void)      \
     {                                                                          \
-        struct mc_test_suite MC_JOIN_UNDERSCORE(test_suite, suite_name);       \
-        mc_test_suite_init(&MC_JOIN_UNDERSCORE(test_suite, suite_name),        \
-                           #suite_name);                                       \
-        mc_register_suite(&MC_JOIN_UNDERSCORE(test_suite, suite_name));        \
+        mc_try_register_empty_suite(#suite_name);                              \
     }
 
 #define MC_TEST_IN_SUITE(suite_name, test_name)                                \
@@ -69,6 +67,7 @@ void mc_test_suite_move(void *dst, void *src);
     MC_ATTRIBUTE(constructor)                                                  \
     static void MC_JOIN_UNDERSCORE(register_test, suite_name, test_name)(void) \
     {                                                                          \
+        mc_try_register_empty_suite(#suite_name);                              \
         struct mc_test_entry MC_JOIN_UNDERSCORE(test_entry, suite_name,        \
                                                 test_name) = {                 \
             .name = #suite_name "::" #test_name,                               \

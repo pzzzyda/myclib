@@ -300,6 +300,19 @@ void mc_register_suite(struct mc_test_suite *suite)
     mc_test_state_register_suite(&test_state, suite);
 }
 
+void mc_try_register_empty_suite(char const *suite_name)
+{
+    assert(suite_name);
+
+    mc_test_init();
+
+    if (!mc_test_state_find_suite(&test_state, suite_name)) {
+        struct mc_test_suite suite;
+        mc_test_suite_init(&suite, suite_name);
+        mc_map_insert(&test_state.suites, &suite.name, &suite);
+    }
+}
+
 void mc_set_test_suite_setup(char const *suite_name, void (*setup)(void))
 {
     assert(suite_name);

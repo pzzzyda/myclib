@@ -1,5 +1,7 @@
 # myclib
 
+[English](README.md) | [中文](README_CN.md)
+
 A lightweight, efficient, and easy-to-use C library providing essential data structures and utilities for C programmers.
 
 ## Overview
@@ -10,28 +12,28 @@ myclib is designed to fill the gap between the minimal standard C library and mo
 
 ### Core Data Structures
 
--   **Array**: Dynamic array implementation with support for generic types, automatic resizing, and various operations
--   **List**: Doubly linked list with generic element support
--   **Map**: Hash table-based key-value map with generic key and value support
--   **String**: Dynamic string implementation with rich string manipulation functions
+- **Array**: Dynamic array implementation with support for generic types, automatic resizing, and various operations
+- **List**: Doubly linked list with generic element support
+- **Map**: Hash table-based key-value map with generic key and value support
+- **String**: Dynamic string implementation with rich string manipulation functions
 
 ### Utilities
 
--   **Type System**: Generic type metadata and operations framework
--   **Logging**: Flexible logging system with multiple levels and formatting options
--   **Time**: High-resolution time measurement utilities
--   **Iterators**: Unified iterator interface for all data structures
--   **Memory Management**: Aligned memory allocation functions
--   **Hash Functions**: Efficient hash implementations for various data types
--   **Attribute Support**: Cross-platform compiler attribute macros
--   **Testing Framework**: Lightweight unit testing utilities
+- **Type System**: Generic type metadata and operations framework
+- **Logging**: Flexible logging system with multiple levels and formatting options
+- **Time**: High-resolution time measurement utilities
+- **Iterators**: Unified iterator interface for all data structures
+- **Memory Management**: Aligned memory allocation functions
+- **Hash Functions**: Efficient hash implementations for various data types
+- **Attribute Support**: Cross-platform compiler attribute macros
+- **Testing Framework**: Lightweight unit testing utilities
 
 ## Getting Started
 
 ### Prerequisites
 
--   C11 compatible compiler (GCC, Clang, MSVC)
--   CMake 3.10 or later
+- C11 compatible compiler (GCC, Clang, MSVC)
+- CMake 3.10 or later
 
 ### Building the Library
 
@@ -276,14 +278,14 @@ Contributions are welcome! Please feel free to submit issues, feature requests, 
 
 ## TODO
 
--   Add more data structures (e.g., set, queue, stack)
--   Enhance string manipulation capabilities
--   Add more utility functions
--   Improve documentation
--   Add more examples
+- Add more data structures (e.g., set, queue, stack)
+- Enhance string manipulation capabilities
+- Add more utility functions
+- Improve documentation
+- Add more examples
 
 ## Contact
 
--   Email: zhongyuan03@outlook.com
+- Email: zhongyuan03@outlook.com
 
 For questions or feedback, please open an issue on the project repository.

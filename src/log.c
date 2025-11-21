@@ -7,7 +7,7 @@
 #include "myclib/log.h"
 
 #if defined(_WIN32) || defined(_WIN64)
-#include <windows.h>
+#include <Windows.h>
 #include <process.h>
 typedef CRITICAL_SECTION mc_mutex_t;
 #define MC_MUTEX_INIT(mutex) InitializeCriticalSection(mutex)

@@ -1,7 +1,7 @@
 #include "myclib/time.h"
 
 #if defined(_WIN64) || defined(_WIN32)
-#include <windows.h>
+#include <Windows.h>
 #else
 #include <time.h>
 #endif

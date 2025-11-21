@@ -32,18 +32,6 @@ void mc_list_cleanup(struct mc_list *list)
     list->elem_offset = 0;
 }
 
-size_t mc_list_len(struct mc_list const *list)
-{
-    assert(list);
-    return list->len;
-}
-
-bool mc_list_is_empty(struct mc_list const *list)
-{
-    assert(list);
-    return list->len == 0;
-}
-
 static void *mc_list_node_elem(struct mc_list const *list,
                                struct mc_list_node *node)
 {

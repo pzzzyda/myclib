@@ -25,9 +25,6 @@ void mc_list_init(struct mc_list *list, struct mc_type const *elem_type);
 
 void mc_list_cleanup(struct mc_list *list);
 
-size_t mc_list_len(struct mc_list const *list);
-bool mc_list_is_empty(struct mc_list const *list);
-
 void mc_list_push_back(struct mc_list *list, void *elem);
 void mc_list_push_front(struct mc_list *list, void *elem);
 bool mc_list_pop_back(struct mc_list *list, void *out_elem);
@@ -48,5 +45,15 @@ size_t mc_list_hash(struct mc_list const *list);
 
 void mc_list_iter_init(struct mc_iter *iter, struct mc_list const *list);
 bool mc_list_iter_next(struct mc_iter *iter);
+
+static inline size_t mc_list_len(struct mc_list const *list)
+{
+    return list->len;
+}
+
+static inline bool mc_list_is_empty(struct mc_list const *list)
+{
+    return list->len == 0;
+}
 
 #endif

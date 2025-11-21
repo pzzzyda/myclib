@@ -24,10 +24,6 @@ void mc_array_from(struct mc_array *array, struct mc_type const *elem_type,
 
 void mc_array_cleanup(struct mc_array *array);
 
-size_t mc_array_len(struct mc_array const *array);
-size_t mc_array_capacity(struct mc_array const *array);
-bool mc_array_is_empty(struct mc_array const *array);
-
 void *mc_array_get(struct mc_array const *array, size_t index);
 void *mc_array_get_unchecked(struct mc_array const *array, size_t index);
 void *mc_array_get_first(struct mc_array const *array);
@@ -77,5 +73,20 @@ size_t mc_array_hash(struct mc_array const *array);
 
 void mc_array_iter_init(struct mc_iter *iter, struct mc_array const *array);
 bool mc_array_iter_next(struct mc_iter *iter);
+
+static inline size_t mc_array_len(struct mc_array const *array)
+{
+    return array->len;
+}
+
+static inline size_t mc_array_capacity(struct mc_array const *array)
+{
+    return array->capacity;
+}
+
+static inline bool mc_array_is_empty(struct mc_array const *array)
+{
+    return array->len == 0;
+}
 
 #endif

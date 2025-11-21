@@ -69,24 +69,6 @@ void mc_array_cleanup(struct mc_array *array)
     array->elem_type = NULL;
 }
 
-size_t mc_array_len(struct mc_array const *array)
-{
-    assert(array);
-    return array->len;
-}
-
-size_t mc_array_capacity(struct mc_array const *array)
-{
-    assert(array);
-    return array->capacity;
-}
-
-bool mc_array_is_empty(struct mc_array const *array)
-{
-    assert(array);
-    return array->len == 0;
-}
-
 void *mc_array_get(struct mc_array const *array, size_t index)
 {
     assert(array);

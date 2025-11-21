@@ -91,24 +91,6 @@ void mc_string_cleanup(struct mc_string *str)
     mc_string_deallocate(str);
 }
 
-size_t mc_string_len(struct mc_string const *str)
-{
-    assert(str);
-    return str->len;
-}
-
-size_t mc_string_capacity(struct mc_string const *str)
-{
-    assert(str);
-    return str->capacity;
-}
-
-bool mc_string_is_empty(struct mc_string const *str)
-{
-    assert(str);
-    return str->len == 0;
-}
-
 char const *mc_string_c_str(struct mc_string *str)
 {
     assert(str);

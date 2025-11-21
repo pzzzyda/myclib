@@ -29,10 +29,6 @@ void mc_map_init(struct mc_map *map, struct mc_type const *key_type,
 
 void mc_map_cleanup(struct mc_map *map);
 
-size_t mc_map_len(struct mc_map const *map);
-size_t mc_map_capacity(struct mc_map const *map);
-bool mc_map_is_empty(struct mc_map const *map);
-
 void mc_map_insert(struct mc_map *map, void *key, void *value);
 bool mc_map_remove(struct mc_map *map, void const *key, void *out_key,
                    void *out_value);
@@ -54,5 +50,20 @@ void mc_map_copy(struct mc_map *dst, struct mc_map const *src);
 
 void mc_map_iter_init(struct mc_iter *iter, struct mc_map const *map);
 bool mc_map_iter_next(struct mc_iter *iter);
+
+static inline size_t mc_map_len(struct mc_map const *map)
+{
+    return map->len;
+}
+
+static inline size_t mc_map_capacity(struct mc_map const *map)
+{
+    return map->table.capacity;
+}
+
+static inline bool mc_map_is_empty(struct mc_map const *map)
+{
+    return map->len == 0;
+}
 
 #endif

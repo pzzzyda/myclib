@@ -329,24 +329,6 @@ void mc_map_cleanup(struct mc_map *map)
     map->len = 0;
 }
 
-size_t mc_map_len(struct mc_map const *map)
-{
-    assert(map);
-    return map->len;
-}
-
-size_t mc_map_capacity(struct mc_map const *map)
-{
-    assert(map);
-    return map->table.capacity;
-}
-
-bool mc_map_is_empty(struct mc_map const *map)
-{
-    assert(map);
-    return map->len == 0;
-}
-
 static size_t mc_map_scramble_hash(size_t hash_value)
 {
     hash_value ^= (hash_value >> 20) ^ (hash_value >> 12);

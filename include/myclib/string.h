@@ -21,10 +21,6 @@ void mc_string_join(struct mc_array const *parts, char const *separator,
 
 void mc_string_cleanup(struct mc_string *str);
 
-size_t mc_string_len(struct mc_string const *str);
-size_t mc_string_capacity(struct mc_string const *str);
-bool mc_string_is_empty(struct mc_string const *str);
-
 char const *mc_string_c_str(struct mc_string *str);
 
 void mc_string_append(struct mc_string *str, char const *s);
@@ -75,5 +71,20 @@ int mc_string_compare(struct mc_string const *str1,
 bool mc_string_equal(struct mc_string const *str1,
                      struct mc_string const *str2);
 size_t mc_string_hash(struct mc_string const *str);
+
+static inline size_t mc_string_len(struct mc_string const *str)
+{
+    return str->len;
+}
+
+static inline size_t mc_string_capacity(struct mc_string const *str)
+{
+    return str->capacity;
+}
+
+static inline bool mc_string_is_empty(struct mc_string const *str)
+{
+    return str->len == 0;
+}
 
 #endif
